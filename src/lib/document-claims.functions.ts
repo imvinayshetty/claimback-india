@@ -5,7 +5,7 @@ import { countPdfPages, documentError, MAX_FILE_BYTES, sniffType, pageLimitError
 import { analyzeDocuments } from "./analyze-claim.server";
 import { aiToLegacy, type Claim } from "./claims";
 import { analysisExpired, analysisFailure, cleanAnalysisState, verifyQuotes, MAX_TOTAL_BYTES, MAX_DOCUMENTS } from "./review-rules";
-import { policyTextPages } from "./quote-verification.server";
+import { policyTextWithFallback } from "./quote-verification.server";
 import type { Json } from "@/integrations/supabase/types";
 
 async function checkRateLimit(supabase: any, userId: string) {
@@ -91,9 +91,9 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
         files.push({ kind: record.kind, name: record.storage_path.split("/").at(-1) ?? "document", blob });
       }
       validateDocuments(files.map((f) => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
-      const pages = await policyTextPages(files.find(f => f.kind === "policy")?.blob ?? new Blob());
+      const evidence = await policyTextWithFallback(files.find(f => f.kind === "policy")?.blob ?? new Blob(), key);
       const output = await analyzeDocuments(files, key);
-      const verification = verifyQuotes(output, pages);
+      const verification = verifyQuotes(output, evidence.pages, evidence.ocrPages);
       const rejected = Math.max(0, output.rejected_amount);
       const ai = { ...output, rejected_amount: rejected, claim_amount: Math.max(output.claim_amount, rejected) };
       const { claim: legacy, analysis } = aiToLegacy(ai);
