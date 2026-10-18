@@ -10,6 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Claims use authenticated server mutations with validated-session ownership and RLS-scoped reads; this prevents submitted owner IDs from affecting access.
+- Email login uses the shared production destination, not the preview origin; hosted redirect allowlisting must match it so email links cannot fall back to preview.
 - Store ancillary claim form fields in analysis_json.input to preserve the requested table schema.
 - Keep admin membership checks server-side and restricted to /admin; membership does not bypass owner-only access.
 - Document paths use user UUID/claim UUID/file to align private Storage policies with claim ownership.
