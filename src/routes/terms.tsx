@@ -26,6 +26,8 @@ export const Route = createFileRoute("/terms")({
       <p>[LIABILITY LIMITATION TO BE REVIEWED]</p>
       <h2 className="text-xl">Governing law</h2>
       <p>These terms are governed by the laws of India. Courts at [CITY] have jurisdiction.</p>
+      <h2 className="text-xl">Contact</h2>
+      <p>Questions about these terms: <a className="underline" href="mailto:supportatclaimback@gmail.com">supportatclaimback@gmail.com</a>.</p>
     </article>
   ),
 });

@@ -27,7 +27,7 @@ export const Route = createFileRoute("/privacy")({
       <h2 className="text-xl">Your rights</h2>
       <p>You can view and delete your claims and withdraw consent for further processing by deleting them. Statutory rights and applicable obligations under India’s data protection law must be confirmed in the final legal review. Deletion from active app storage does not establish immediate deletion from provider backups or logs; their retention needs operator review.</p>
       <h2 className="text-xl">Contact</h2>
-      <p>Grievance officer: [NAME], [EMAIL], [ADDRESS].</p>
+      <p>Grievance officer: [NAME], <a className="underline" href="mailto:supportatclaimback@gmail.com">supportatclaimback@gmail.com</a>, [ADDRESS].</p>
     </article>
   ),
 });
