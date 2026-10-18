@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { MAX_DOCUMENTS, MAX_TOTAL_BYTES } from "./review-rules";
 
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export type DocumentKind = "rejection_letter" | "policy" | "other";
@@ -29,6 +30,9 @@ export function validateDocuments(documents: { kind: DocumentKind; size: number;
   if (!submissionConsent.safeParse(consent).success) throw new Error("Please consent to document analysis before submitting.");
   if (!documents.some((f) => f.kind === "rejection_letter")) throw new Error("A rejection or settlement letter is required.");
   if (!documents.some((f) => f.kind === "policy")) throw new Error("A policy document or schedule is required.");
+  if (documents.length > MAX_DOCUMENTS) throw new Error(`Choose at most ${MAX_DOCUMENTS} documents.`);
+  if (documents.reduce((sum, f) => sum + f.size, 0) > MAX_TOTAL_BYTES) throw new Error("All documents together must be 20 MB or smaller.");
+  if (documents.filter(f => f.kind === "policy").length !== 1 || documents.filter(f => f.kind === "rejection_letter").length !== 1) throw new Error("Choose one policy and one insurer letter.");
   for (const file of documents) {
     const error = documentError(file, file.kind);
     if (error) throw new Error(error);
