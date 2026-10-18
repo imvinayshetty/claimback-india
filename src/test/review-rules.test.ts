@@ -1,3 +1,4 @@
+// @vitest-environment node
 import { describe, it, expect } from 'vitest';
 import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { matchQuote, verifyQuotes, groundedAnalysis, analysisExpired, retentionDue } from '@/lib/review-rules';
