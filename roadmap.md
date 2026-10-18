@@ -5,7 +5,8 @@
 - [x] Verify owner isolation and report created policies.
 
 # Three-step claim submission
-- [ ] Add required letter/policy uploads, optional extras, consent and 10 MB validation.
-- [ ] Store private documents and process claims with document-based analysis.
-- [ ] Show polling progress, failure states and document deletion.
-- [ ] Test submission rules and verify the signed-in flow.
+- [x] Add required letter/policy uploads, optional extras, consent and 10 MB validation.
+- [x] Store private documents and process claims with document-based analysis.
+- [x] Show polling progress, failure states and document deletion.
+- [x] Test submission rules and verify a real PDF/image analysis call.
+- [ ] Verify signed-in submission, polling and deletion end-to-end — blocked: no auth users or active session; user must sign up/sign in.

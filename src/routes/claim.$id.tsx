@@ -1,6 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, FileText } from "lucide-react";
+import { CheckCircle2, FileText, LoaderCircle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { deleteClaimDocuments } from "@/lib/document-claims.functions";
+import { shouldPollClaim } from "@/lib/claim-documents";
+import { Button } from "@/components/Button";
 import { analyse, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
 import { Disclaimer } from "@/components/Disclaimer";
 import { useAuth, SignInRequired } from "@/components/Auth";
@@ -19,7 +24,18 @@ export const Route = createFileRoute("/claim/$id")({
 
 export function useClaim(id: string) {
   const { user } = useAuth();
-  return useQuery({ queryKey: ["claim", user?.id, id], queryFn: () => getClaim(id), enabled: !!user });
+  return useQuery({ queryKey: ["claim", user?.id, id], queryFn: () => getClaim(id), enabled: !!user,
+    refetchInterval: (query) => shouldPollClaim(query.state.data?.status) ? 2000 : false,
+    refetchIntervalInBackground: true });
+}
+
+function DocumentDeletion({ id }: { id: string }) {
+  const remove = useServerFn(deleteClaimDocuments);
+  const [state, setState] = useState("");
+  return <div className="border-t pt-6"><Button className="btn btn-ghost" disabled={state === "Deleting…" || state === "Documents deleted"} onClick={async () => {
+    if (!window.confirm("Delete all uploaded documents for this claim? This cannot be undone. Your saved analysis and letter will remain.")) return;
+    setState("Deleting…"); try { await remove({ data: { id } }); setState("Documents deleted"); } catch (error) { setState(error instanceof Error ? error.message : "Could not delete your documents."); }
+  }}><Trash2 size={18} />Delete my documents</Button>{state && <p role="status" className="mt-2 text-sm text-muted-foreground">{state}</p>}</div>;
 }
 
 const tone = { Strong: "bg-success", Fair: "bg-warning", Uncertain: "bg-muted-foreground" };
@@ -33,7 +49,13 @@ function Result() {
   if (error) return <div role="alert" className="container-page py-20">Could not load your claim. Please try again.</div>;
   if (isPending) return <div className="container-page py-20">Loading…</div>;
   if (!c) return <div className="container-page py-20 text-center"><p>Claim not found.</p><Link to="/new-claim" className="btn btn-primary mt-6">Start a new check</Link></div>;
-  const a = analyse(c);
+  if (shouldPollClaim(c.status)) return <div className="container-page max-w-2xl space-y-8 py-16">
+    <div role="status" aria-live="polite"><LoaderCircle className="animate-spin text-primary motion-reduce:animate-none" size={36} /><p className="mt-6 text-sm text-primary">Documents uploaded securely</p><h1 className="mt-2 text-3xl">Reviewing your claim</h1><p className="mt-4 text-muted-foreground">We’re reading your insurer’s letter and checking it against your policy and supporting documents. This may take a few minutes.</p></div>
+    <ol className="space-y-4"><li className="flex items-center gap-3"><CheckCircle2 className="text-primary" size={20} />Documents received</li><li className="flex items-center gap-3"><LoaderCircle className="animate-spin text-primary motion-reduce:animate-none" size={20} />Analyzing your claim</li><li className="text-muted-foreground">Appeal points and letter next</li></ol>
+    <DocumentDeletion id={id} />
+  </div>;
+  if (c.status === "failed") return <div className="container-page max-w-2xl space-y-6 py-16"><h1 className="text-3xl">We couldn’t complete your review</h1><p role="alert" className="text-muted-foreground">{c.error || "Your document review failed. Please submit a new claim with readable documents."}</p><Link to="/new-claim" className="btn btn-primary">Start a new claim</Link><DocumentDeletion id={id} /></div>;
+  const a = c.analysis ?? analyse(c);
   return (
     <div className="container-page max-w-2xl space-y-8 py-12">
       <div>
@@ -66,6 +88,7 @@ function Result() {
       </section>
       <Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><FileText size={20} />Get my appeal letter</Link>
       <Disclaimer />
+      <DocumentDeletion id={id} />
     </div>
   );
 }
