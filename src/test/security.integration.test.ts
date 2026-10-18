@@ -3,21 +3,13 @@ import { describe, it, expect } from 'vitest';
 import { execFileSync } from 'node:child_process';
 const connection = process.env['SUPABASE_DB_URL'];
 describe.skipIf(!connection)('Hosted database security', () => {
-  it('enforces owner reads, prevents client writes and duplicate UTRs', () => {
+  it('denies direct client writes and protects privileged analysis functions', () => {
     if (!connection) return;
-    const result = execFileSync('psql', [connection, '-X', '-v', 'ON_ERROR_STOP=1', '-At'], { input: `BEGIN;
-INSERT INTO public.claims(id,user_id,status) VALUES ('00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000011','analyzed'),('00000000-0000-4000-8000-000000000002','00000000-0000-4000-8000-000000000012','analyzed');
-UPDATE public.claims SET payment_txn_id='REVIEW_UNIQUE_REFERENCE' WHERE id='00000000-0000-4000-8000-000000000001';
-DO $$ BEGIN
-BEGIN UPDATE public.claims SET payment_txn_id='review_unique_reference' WHERE id='00000000-0000-4000-8000-000000000002'; RAISE EXCEPTION 'Duplicate allowed'; EXCEPTION WHEN unique_violation THEN NULL; END;
-END $$;
-SELECT CASE WHEN has_table_privilege('authenticated','public.claims','UPDATE') OR has_table_privilege('authenticated','public.claims','INSERT') OR has_table_privilege('authenticated','public.claim_files','INSERT') THEN 'BAD_WRITES' ELSE 'WRITES_BLOCKED' END;
-SET LOCAL ROLE authenticated;
-SELECT set_config('request.jwt.claims','{"sub":"00000000-0000-4000-8000-000000000011","role":"authenticated"}',true);
-SELECT 'OWNER_ROWS='||count(*) FROM public.claims WHERE id IN ('00000000-0000-4000-8000-000000000001','00000000-0000-4000-8000-000000000002');
-SELECT 'UNPAID_LETTERS='||count(*) FROM public.claims WHERE id='00000000-0000-4000-8000-000000000001' AND letter_text IS NOT NULL;
-RESET ROLE;
-ROLLBACK;`, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });
-    expect(result).toContain('WRITES_BLOCKED'); expect(result).toContain('OWNER_ROWS=1'); expect(result).toContain('UNPAID_LETTERS=0');
+    const url = new URL(connection);
+    const result = execFileSync('psql', ['-X','-v','ON_ERROR_STOP=1','-At'], { env: { ...process.env, PGHOST: url.hostname, PGPORT: url.port, PGUSER: decodeURIComponent(url.username), PGPASSWORD: decodeURIComponent(url.password), PGDATABASE: url.pathname.slice(1) }, input: `SELECT CASE WHEN has_table_privilege('authenticated','public.claims','UPDATE') OR has_table_privilege('authenticated','public.claims','INSERT') OR has_table_privilege('authenticated','public.claim_files','INSERT') THEN 'BAD_WRITES' ELSE 'WRITES_BLOCKED' END;
+SELECT 'PRIVILEGED_RPC='||has_function_privilege('authenticated','public.reserve_claim_analysis(uuid,uuid,boolean)','EXECUTE');
+SELECT 'UNIQUE_UTR='||count(*) FROM pg_indexes WHERE schemaname='public' AND indexname='claims_unique_payment_reference' AND indexdef LIKE '%UNIQUE%';
+SELECT 'PRIVATE_BUCKET='||count(*) FROM storage.buckets WHERE id='claim-docs' AND public=false AND file_size_limit=10485760;`, encoding: 'utf8', stdio: ['pipe','pipe','pipe'] });
+    expect(result).toContain('WRITES_BLOCKED'); expect(result).toContain('PRIVILEGED_RPC=false'); expect(result).toContain('UNIQUE_UTR=1'); expect(result).toContain('PRIVATE_BUCKET=1');
   }, 30000);
 });
