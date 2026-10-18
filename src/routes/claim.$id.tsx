@@ -6,7 +6,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { deleteClaimDocuments } from "@/lib/document-claims.functions";
 import { shouldPollClaim } from "@/lib/claim-documents";
 import { Button } from "@/components/Button";
-import { analyse, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
+import { analyse, CATEGORY_LABELS, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
 import { Disclaimer } from "@/components/Disclaimer";
 import { useAuth, SignInRequired } from "@/components/Auth";
 
@@ -59,7 +59,7 @@ function Result() {
   return (
     <div className="container-page max-w-2xl space-y-8 py-12">
       <div>
-        <p className="text-sm text-muted-foreground">{c.insurer || "Your claim"} · {REASONS.find((r) => r.id === c.reason)?.label}</p>
+        <p className="text-sm text-muted-foreground">{c.insurer || "Your claim"} · {c.ai ? CATEGORY_LABELS[c.ai.reason_category] : REASONS.find((r) => r.id === c.reason)?.label}</p>
         <h1 className="mt-1 text-3xl">Here's what we found</h1>
       </div>
       <div className="card-soft p-6">
@@ -68,8 +68,11 @@ function Result() {
           <span className="font-semibold">Appeal chance: {a.chance}</span>
         </div>
         <p className="mt-3 text-lg">{a.summary}</p>
+        {c.ai && <div className="mt-4"><p className="text-sm text-muted-foreground">How sure we are: {Math.round(c.ai.confidence * 100)}%</p>
+          <div className="mt-1 h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Math.round(c.ai.confidence * 100)}%` }} /></div></div>}
         <p className="mt-4 text-muted-foreground">Amount in dispute: <b className="text-foreground">{inr(Math.max(c.amountClaimed - c.amountPaid, 0))}</b></p>
       </div>
+      {c.ai ? <AiDetails ai={c.ai} /> : <>
       <section>
         <h2 className="text-2xl">Points to raise</h2>
         <ul className="mt-4 space-y-3">{a.points.map((p) => <li key={p} className="flex gap-3"><CheckCircle2 className="mt-1 shrink-0 text-primary" size={20} />{p}</li>)}</ul>
@@ -77,7 +80,7 @@ function Result() {
       <section>
         <h2 className="text-2xl">Documents to attach</h2>
         <ul className="mt-4 list-disc space-y-1 pl-6">{a.documents.map((d) => <li key={d}>{d}</li>)}</ul>
-      </section>
+      </section></>}
       <section className="card-soft bg-secondary p-6">
         <h2 className="text-2xl">If the insurer doesn't help</h2>
         <ol className="mt-4 list-decimal space-y-2 pl-6">
@@ -91,4 +94,24 @@ function Result() {
       <DocumentDeletion id={id} />
     </div>
   );
+}
+
+const isNotFound = (s: string) => s.trim().toLowerCase() === "not found" || !s.trim();
+function AiDetails({ ai }: { ai: NonNullable<Claim["ai"]> }) {
+  return <>
+    <section>
+      <h2 className="text-2xl">Points to raise</h2>
+      {ai.arguments.length === 0 ? <p className="mt-4 text-muted-foreground">No appeal points were found in your documents.</p> :
+      <ul className="mt-4 space-y-4">{ai.arguments.map((p, i) => <li key={i} className="flex gap-3"><CheckCircle2 className="mt-1 shrink-0 text-primary" size={20} /><div><p>{p.point}</p>
+        {isNotFound(p.supporting_quote_or_not_found) ? <p className="mt-1 text-sm text-muted-foreground">No supporting policy clause found</p> : <blockquote className="mt-1 border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">“{p.supporting_quote_or_not_found}”</blockquote>}</div></li>)}</ul>}
+    </section>
+    {ai.clauses_cited.length > 0 && <section>
+      <h2 className="text-2xl">Policy clauses quoted</h2>
+      <ul className="mt-4 space-y-3">{ai.clauses_cited.map((c, i) => <li key={i} className="card-soft p-4"><p className="italic">“{c.quote}”</p><p className="mt-2 text-sm text-muted-foreground">Page {c.page || "not found"}</p></li>)}</ul>
+    </section>}
+    {ai.missing_documents.length > 0 && <section>
+      <h2 className="text-2xl">Documents you may still need</h2>
+      <ul className="mt-4 list-disc space-y-1 pl-6">{ai.missing_documents.map((d) => <li key={d}>{d}</li>)}</ul>
+    </section>}
+  </>;
 }

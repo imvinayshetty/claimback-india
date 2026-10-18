@@ -15,6 +15,13 @@
       "when": 1792330773397,
       "tag": "0001_restrict_claim_table_grants",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792333838125,
+      "tag": "0002_analysis_runs_rate_limit",
+      "breakpoints": true
     }
   ]
 }

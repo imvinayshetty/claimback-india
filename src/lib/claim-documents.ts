@@ -24,13 +24,33 @@ export function validateDocuments(documents: { kind: DocumentKind; size: number;
   }
 }
 
+export const REASON_CATEGORIES = ["pre_existing", "non_disclosure", "waiting_period", "room_rent_proportionate", "non_payable_items", "not_medically_necessary", "documentation", "other"] as const;
+export const CASE_STRENGTHS = ["strong", "moderate", "weak", "unclear"] as const;
 export const analysisOutput = z.object({
-  name: z.string(), insurer: z.string(), policyNo: z.string(), claimNo: z.string(),
-  amountClaimed: z.number(), amountPaid: z.number(),
-  reason: z.enum(["ped", "room_rent", "non_payable", "waiting", "documents", "other"]),
-  details: z.string(), chance: z.enum(["Strong", "Fair", "Uncertain"]),
-  summary: z.string(), points: z.array(z.string()), documents: z.array(z.string()),
+  insurer: z.string(), policy_number: z.string(), claim_amount: z.number(), rejected_amount: z.number(),
+  rejection_reason: z.string(), reason_category: z.enum(REASON_CATEGORIES),
+  clauses_cited: z.array(z.object({ quote: z.string(), page: z.string() }).strict()),
+  arguments: z.array(z.object({ point: z.string(), supporting_quote_or_not_found: z.string() }).strict()),
+  missing_documents: z.array(z.string()), case_strength: z.enum(CASE_STRENGTHS), confidence: z.number().min(0).max(1),
 }).strict();
+export type AiAnalysis = z.infer<typeof analysisOutput>;
+
+export const MAX_PDF_PAGES = 30;
+export function pageLimitError(pages: number) {
+  return pages > MAX_PDF_PAGES ? `Each PDF can have at most ${MAX_PDF_PAGES} pages.` : "";
+}
+export async function countPdfPages(bytes: ArrayBuffer) {
+  const { PDFDocument } = await import("pdf-lib");
+  try { return (await PDFDocument.load(bytes, { ignoreEncryption: true, updateMetadata: false })).getPageCount(); }
+  catch { throw new Error("This PDF could not be read. Choose another file."); }
+}
+
+export const RATE_LIMITS = { perHour: 5, perDay: 15 };
+export function rateLimitError(lastHour: number, lastDay: number) {
+  if (lastHour >= RATE_LIMITS.perHour) return `You can run ${RATE_LIMITS.perHour} analyses per hour. Please try again later.`;
+  if (lastDay >= RATE_LIMITS.perDay) return `You can run ${RATE_LIMITS.perDay} analyses per day. Please try again tomorrow.`;
+  return "";
+}
 
 export function shouldPollClaim(status?: string) {
   return status === "processing" || status === "uploaded";

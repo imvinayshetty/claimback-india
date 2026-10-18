@@ -1,10 +1,21 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { documentError, validateDocuments, type DocumentKind } from "./claim-documents";
+import { countPdfPages, documentError, pageLimitError, rateLimitError, validateDocuments, type DocumentKind } from "./claim-documents";
 import { analyzeDocuments } from "./analyze-claim.server";
-import { letterText, type Claim } from "./claims";
+import { aiToLegacy, letterText, type Claim } from "./claims";
 import type { Json } from "@/integrations/supabase/types";
+
+async function checkRateLimit(supabase: any, userId: string) {
+  const since = (ms: number) => new Date(Date.now() - ms).toISOString();
+  const count = async (ms: number) => {
+    const { count, error } = await supabase.from("analysis_runs").select("id", { count: "exact", head: true }).eq("user_id", userId).gte("created_at", since(ms));
+    if (error) throw new Error("Could not check your usage. Please try again.");
+    return count ?? 0;
+  };
+  const message = rateLimitError(await count(3600_000), await count(86400_000));
+  if (message) throw new Error(message);
+}
 
 export const submitDocuments = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator((data: FormData) => { if (!(data instanceof FormData)) throw new Error("Choose your documents."); return data; })
@@ -17,6 +28,8 @@ export const submitDocuments = createServerFn({ method: "POST" }).middleware([re
       }
     }
     validateDocuments(files.map(({ file, kind }) => ({ kind, size: file.size, type: file.type })), data.get("consent") === "true");
+    for (const { file } of files) if (file.type === "application/pdf") { const e = pageLimitError(await countPdfPages(await file.arrayBuffer())); if (e) throw new Error(e); }
+    await checkRateLimit(context.supabase, context.userId);
     const id = crypto.randomUUID();
     const { error } = await context.supabase.from("claims").insert({ id, user_id: context.userId, status: "processing",
       analysis_json: { consent: { accepted: true, acceptedAt: new Date().toISOString() }, input: {} } });
@@ -53,6 +66,9 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
     if (leaseError) throw new Error("Could not start analysis.");
     if (!lease) return { status: "processing" };
     try {
+      await checkRateLimit(context.supabase, context.userId);
+      const { error: runError } = await context.supabase.from("analysis_runs").insert({ user_id: context.userId, claim_id: row.id });
+      if (runError) throw new Error("Could not start analysis.");
       const key = process.env["LOVABLE_API_KEY"];
       if (!key) throw new Error("Document analysis is not configured. Please contact support.");
       const { data: records, error: fileError } = await context.supabase.from("claim_files").select("*").eq("claim_id", data.id);
@@ -63,24 +79,26 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
         if (downloadError || !blob) throw new Error("Could not read your documents.");
         const validation = documentError(blob, record.kind as DocumentKind);
         if (validation) throw new Error(validation);
+        if (blob.type === "application/pdf") { const pages = pageLimitError(await countPdfPages(await blob.arrayBuffer())); if (pages) throw new Error(pages); }
         files.push({ kind: record.kind, name: record.storage_path.split("/").at(-1) ?? "document", blob });
       }
       validateDocuments(files.map((f) => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
       const output = await analyzeDocuments(files, key);
-      const amountClaimed = Math.max(0, output.amountClaimed);
-      const amountPaid = Math.min(amountClaimed, Math.max(0, output.amountPaid));
-      const claim: Claim = { ...output, amountClaimed, amountPaid, id: row.id, createdAt: row.created_at };
-      const analysis = { chance: output.chance, summary: output.summary, points: output.points, documents: output.documents };
-      const { error: saveError } = await context.supabase.from("claims").update({ status: "analyzed", insurer: output.insurer,
-        claim_amount: amountClaimed, rejected_amount: amountClaimed - amountPaid, reason_category: output.reason,
-        case_strength: output.chance, analysis_json: { ...json, analysisStarted: true, input: claim, analysis } as unknown as Json,
+      const rejected = Math.max(0, output.rejected_amount);
+      const ai = { ...output, rejected_amount: rejected, claim_amount: Math.max(output.claim_amount, rejected) };
+      const { claim: legacy, analysis } = aiToLegacy(ai);
+      const claim: Claim = { ...legacy, id: row.id, createdAt: row.created_at };
+      const { error: saveError } = await context.supabase.from("claims").update({ status: "analyzed", insurer: ai.insurer || null,
+        claim_amount: ai.claim_amount, rejected_amount: ai.rejected_amount, reason_category: ai.reason_category,
+        case_strength: ai.case_strength, analysis_json: { ...json, analysisStarted: true, input: claim, analysis, ai } as unknown as Json,
         letter_text: letterText(claim, analysis) }).eq("id", row.id);
       if (saveError) throw new Error("Could not save your analysis.");
       return { status: "analyzed" };
     } catch (error) {
       // Never retry or substitute models for gateway denials or refusals.
       const status = error && typeof error === "object" && "statusCode" in error ? error.statusCode : undefined;
-      const message = status === 402 || status === 403 ? "Document analysis is unavailable because of an AI service access or credit limit. Please contact support." :
+      const known = error instanceof Error && /analyses per|pages\.|could not be read/.test(error.message) ? error.message : "";
+      const message = known || status === 402 || status === 403 ? "Document analysis is unavailable because of an AI service access or credit limit. Please contact support." :
         "We could not analyze your documents. Please check that they are readable and submit a new claim.";
       await context.supabase.from("claims").update({ status: "failed", analysis_json: { ...json, error: message } as Json }).eq("id", row.id);
       return { status: "failed" };

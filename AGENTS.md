@@ -16,3 +16,4 @@
 - Document submission and analysis use authenticated TanStack server functions, not separate Edge Functions, to preserve the supported runtime and validate ownership.
 - Validate document requirements and file sizes through shared rules on both client and server; a private bucket limit adds storage enforcement.
 - Persist processing status and a per-claim analysis lease before document analysis; results poll durable status and render saved analysis, avoiding duplicate runs.
+- Analysis rate limits are counted from the analysis_runs table and PDF page limits use pdf-lib in shared rules, so client and server enforce the same values.
