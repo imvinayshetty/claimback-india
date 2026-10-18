@@ -88,9 +88,11 @@ export type Database = {
       claims: {
         Row: {
           analysis_json: Json | null
+          analyzed_at: string | null
           case_strength: string | null
           claim_amount: number
           created_at: string
+          files_purged_at: string | null
           id: string
           insurer: string | null
           letter_generations: number
@@ -106,9 +108,11 @@ export type Database = {
         }
         Insert: {
           analysis_json?: Json | null
+          analyzed_at?: string | null
           case_strength?: string | null
           claim_amount?: number
           created_at?: string
+          files_purged_at?: string | null
           id?: string
           insurer?: string | null
           letter_generations?: number
@@ -124,9 +128,11 @@ export type Database = {
         }
         Update: {
           analysis_json?: Json | null
+          analyzed_at?: string | null
           case_strength?: string | null
           claim_amount?: number
           created_at?: string
+          files_purged_at?: string | null
           id?: string
           insurer?: string | null
           letter_generations?: number
