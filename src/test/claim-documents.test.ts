@@ -42,3 +42,26 @@ describe("Document submission rules", () => {
     expect(shouldPollClaim("failed")).toBe(false);
   });
 });
+import { pageLimitError, rateLimitError, analysisOutput } from "@/lib/claim-documents";
+describe("Analysis limits", () => {
+  it("allows 30 PDF pages and rejects 31", () => {
+    expect(pageLimitError(30)).toBe("");
+    expect(pageLimitError(31)).not.toBe("");
+  });
+  it("allows 5 analyses per hour, blocks the 6th", () => {
+    expect(rateLimitError(4, 4)).toBe("");
+    expect(rateLimitError(5, 5)).not.toBe("");
+  });
+  it("blocks the 16th analysis in a day", () => {
+    expect(rateLimitError(0, 14)).toBe("");
+    expect(rateLimitError(0, 15)).not.toBe("");
+  });
+  const valid = { insurer: "X", policy_number: "P", claim_amount: 100, rejected_amount: 50, rejection_reason: "r",
+    reason_category: "pre_existing", clauses_cited: [{ quote: "q", page: "3" }],
+    arguments: [{ point: "p", supporting_quote_or_not_found: "not found" }], missing_documents: [], case_strength: "moderate", confidence: 0.6 };
+  it("accepts a valid reply and rejects bad category or confidence", () => {
+    expect(analysisOutput.safeParse(valid).success).toBe(true);
+    expect(analysisOutput.safeParse({ ...valid, reason_category: "ped" }).success).toBe(false);
+    expect(analysisOutput.safeParse({ ...valid, confidence: 1.2 }).success).toBe(false);
+  });
+});
