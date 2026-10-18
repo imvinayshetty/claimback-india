@@ -88,7 +88,7 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
       const ai = { ...output, rejected_amount: rejected, claim_amount: Math.max(output.claim_amount, rejected) };
       const { claim: legacy, analysis } = aiToLegacy(ai);
       const claim: Claim = { ...legacy, id: row.id, createdAt: row.created_at };
-      const { error: saveError } = await context.supabase.from("claims").update({ status: "analyzed", insurer: ai.insurer || null,
+      const { error: saveError } = await context.supabase.from("claims").update({ status: "analyzed", analyzed_at: new Date().toISOString(), insurer: ai.insurer || null,
         claim_amount: ai.claim_amount, rejected_amount: ai.rejected_amount, reason_category: ai.reason_category,
         case_strength: ai.case_strength, analysis_json: { ...json, analysisStarted: true, input: claim, analysis, ai } as unknown as Json,
         letter_text: letterText(claim, analysis) }).eq("id", row.id);
@@ -117,5 +117,23 @@ export const deleteClaimDocuments = createServerFn({ method: "POST" }).middlewar
     }
     const { error: recordError } = await context.supabase.from("claim_files").delete().eq("claim_id", data.id);
     if (recordError) throw new Error("Could not finish deleting your documents.");
+    return { deleted: true };
+  });
+
+/** Deletes the whole claim: uploaded files, file records, analysis and letter. */
+export const deleteClaimData = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
+  .inputValidator(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
+    const { data: claim } = await context.supabase.from("claims").select("id").eq("id", data.id).maybeSingle();
+    if (!claim) throw new Error("Claim not found.");
+    const { data: files, error } = await context.supabase.from("claim_files").select("storage_path").eq("claim_id", data.id);
+    if (error) throw new Error("Could not load your documents.");
+    if (files?.length) {
+      const { error: removeError } = await context.supabase.storage.from("claim-docs").remove(files.map((f) => f.storage_path));
+      if (removeError) throw new Error("Could not delete your documents. Please try again.");
+    }
+    const { error: fileErr } = await context.supabase.from("claim_files").delete().eq("claim_id", data.id);
+    if (fileErr) throw new Error("Could not delete your document records.");
+    const { error: claimErr } = await context.supabase.from("claims").delete().eq("id", data.id);
+    if (claimErr) throw new Error("Could not delete your claim.");
     return { deleted: true };
   });

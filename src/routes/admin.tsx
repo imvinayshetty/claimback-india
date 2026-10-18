@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { adminClaims } from "@/lib/claims.functions";
+import { adminClaims, adminStats } from "@/lib/claims.functions";
 import { adminPendingPayments, reviewPayment } from "@/lib/letter.functions";
 import { LETTER_PRICE_INR } from "@/lib/letter-rules";
 import { useQueryClient } from "@tanstack/react-query";
@@ -34,6 +34,8 @@ function Admin() {
   const claims = data.claims.map(rowToClaim);
   return (
     <div className="container-page py-12">
+      <h1 className="text-3xl">Dashboard</h1>
+      <Stats />
       <PendingPayments />
       <h1 className="mt-10 text-3xl">Claims</h1>
       <p className="mt-1 text-muted-foreground">{claims.length} of your claims submitted</p>
@@ -76,4 +78,12 @@ function PendingPayments() {
       {!data.payments.length && <p className="text-muted-foreground">No payments waiting.</p>}
     </div>
   </section>;
+}
+
+function Stats() {
+  const load = useServerFn(adminStats);
+  const { data, error } = useQuery({ queryKey: ["admin-stats"], queryFn: () => load() });
+  if (error) return <p role="alert" className="mt-4">Could not load counts.</p>;
+  const items = [["Total claims", data?.total], ["Paid claims", data?.paid], ["Failed analyses", data?.failed], ["Payments to review", data?.pending], ["Analysing now", data?.processing]] as const;
+  return <dl className="mt-6 mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3">{items.map(([label, n]) => <div key={label} className="card-soft p-5"><dt className="text-sm text-muted-foreground">{label}</dt><dd className="mt-1 text-3xl font-semibold">{n ?? "…"}</dd></div>)}</dl>;
 }

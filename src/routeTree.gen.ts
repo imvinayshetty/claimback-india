@@ -18,6 +18,7 @@ import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ClaimIdRouteImport } from './routes/claim.$id'
 import { Route as ClaimIdLetterRouteImport } from './routes/claim.$id_.letter'
 import { Route as ClaimIdUnlockRouteImport } from './routes/claim.$id_.unlock'
+import { Route as ApiPublicJobsPurgeFilesRouteImport } from './routes/api/public/jobs/purge-files'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -64,6 +65,11 @@ const ClaimIdUnlockRoute = ClaimIdUnlockRouteImport.update({
   path: '/claim/$id/unlock',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicJobsPurgeFilesRoute = ApiPublicJobsPurgeFilesRouteImport.update({
+  id: '/api/public/jobs/purge-files',
+  path: '/api/public/jobs/purge-files',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id/letter': typeof ClaimIdLetterRoute
   '/claim/$id/unlock': typeof ClaimIdUnlockRoute
+  '/api/public/jobs/purge-files': typeof ApiPublicJobsPurgeFilesRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -86,6 +93,7 @@ export interface FileRoutesByTo {
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id/letter': typeof ClaimIdLetterRoute
   '/claim/$id/unlock': typeof ClaimIdUnlockRoute
+  '/api/public/jobs/purge-files': typeof ApiPublicJobsPurgeFilesRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id_/letter': typeof ClaimIdLetterRoute
   '/claim/$id_/unlock': typeof ClaimIdUnlockRoute
+  '/api/public/jobs/purge-files': typeof ApiPublicJobsPurgeFilesRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -111,6 +120,7 @@ export interface FileRouteTypes {
     | '/claim/$id'
     | '/claim/$id/letter'
     | '/claim/$id/unlock'
+    | '/api/public/jobs/purge-files'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -122,6 +132,7 @@ export interface FileRouteTypes {
     | '/claim/$id'
     | '/claim/$id/letter'
     | '/claim/$id/unlock'
+    | '/api/public/jobs/purge-files'
   id:
     | '__root__'
     | '/'
@@ -133,6 +144,7 @@ export interface FileRouteTypes {
     | '/claim/$id'
     | '/claim/$id_/letter'
     | '/claim/$id_/unlock'
+    | '/api/public/jobs/purge-files'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -145,6 +157,7 @@ export interface RootRouteChildren {
   ClaimIdRoute: typeof ClaimIdRoute
   ClaimIdLetterRoute: typeof ClaimIdLetterRoute
   ClaimIdUnlockRoute: typeof ClaimIdUnlockRoute
+  ApiPublicJobsPurgeFilesRoute: typeof ApiPublicJobsPurgeFilesRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -212,6 +225,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClaimIdUnlockRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/jobs/purge-files': {
+      id: '/api/public/jobs/purge-files'
+      path: '/api/public/jobs/purge-files'
+      fullPath: '/api/public/jobs/purge-files'
+      preLoaderRoute: typeof ApiPublicJobsPurgeFilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -225,6 +245,7 @@ const rootRouteChildren: RootRouteChildren = {
   ClaimIdRoute: ClaimIdRoute,
   ClaimIdLetterRoute: ClaimIdLetterRoute,
   ClaimIdUnlockRoute: ClaimIdUnlockRoute,
+  ApiPublicJobsPurgeFilesRoute: ApiPublicJobsPurgeFilesRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

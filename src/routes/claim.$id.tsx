@@ -1,9 +1,9 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, FileSearch, FileText, ListChecks, LoaderCircle, Lock, MessageSquareQuote, Scale, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { deleteClaimDocuments } from "@/lib/document-claims.functions";
+import { deleteClaimData, deleteClaimDocuments } from "@/lib/document-claims.functions";
 import { shouldPollClaim } from "@/lib/claim-documents";
 import { Button } from "@/components/Button";
 import { analyse, CATEGORY_LABELS, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
@@ -31,11 +31,27 @@ export function useClaim(id: string) {
 
 function DocumentDeletion({ id }: { id: string }) {
   const remove = useServerFn(deleteClaimDocuments);
+  const removeAll = useServerFn(deleteClaimData);
+  const navigate = useNavigate();
+  const qc = useQueryClient();
   const [state, setState] = useState("");
-  return <div className="border-t pt-6"><Button className="btn btn-ghost" disabled={state === "Deleting…" || state === "Documents deleted"} onClick={async () => {
-    if (!window.confirm("Delete all uploaded documents for this claim? This cannot be undone. Your saved analysis and letter will remain.")) return;
-    setState("Deleting…"); try { await remove({ data: { id } }); setState("Documents deleted"); } catch (error) { setState(error instanceof Error ? error.message : "Could not delete your documents."); }
-  }}><Trash2 size={18} />Delete my documents</Button>{state && <p role="status" className="mt-2 text-sm text-muted-foreground">{state}</p>}</div>;
+  const busy = state === "Deleting…";
+  return <div className="space-y-3 border-t pt-6">
+    <p className="text-sm text-muted-foreground">Uploaded documents are deleted automatically 30 days after your analysis.</p>
+    <div className="flex flex-wrap gap-3">
+      <Button className="btn btn-ghost" disabled={busy || state === "Documents deleted"} onClick={async () => {
+        if (!window.confirm("Delete all uploaded documents for this claim? Your analysis and letter will remain.")) return;
+        setState("Deleting…"); try { await remove({ data: { id } }); setState("Documents deleted"); } catch (error) { setState(error instanceof Error ? error.message : "Could not delete your documents."); }
+      }}><Trash2 size={18} />Delete documents only</Button>
+      <Button className="btn btn-ghost text-destructive" disabled={busy} onClick={async () => {
+        if (!window.confirm("Delete this claim, its documents, analysis and letter permanently? This cannot be undone.")) return;
+        setState("Deleting…");
+        try { await removeAll({ data: { id } }); qc.removeQueries({ queryKey: ["claim"] }); navigate({ to: "/" }); }
+        catch (error) { setState(error instanceof Error ? error.message : "Could not delete your data."); }
+      }}><Trash2 size={18} />Delete my data</Button>
+    </div>
+    {state && <p role="status" className="text-sm text-muted-foreground">{state}</p>}
+  </div>;
 }
 
 const STRENGTH = {
@@ -74,6 +90,7 @@ function Result() {
         <p className="text-sm text-muted-foreground">{c.insurer || "Your claim"}{ai?.policy_number ? ` · Policy ${ai.policy_number}` : ""}</p>
         <h1 className="mt-1 text-3xl">Here’s what we found</h1>
       </div>
+      <Disclaimer />
 
       <Card icon={<MessageSquareQuote size={20} />} title="What the insurer said">
         <p className="text-sm font-medium text-primary">{reasonLabel}</p>
