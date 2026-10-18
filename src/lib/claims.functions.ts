@@ -16,7 +16,7 @@ export const adminClaims = createServerFn({ method: "POST" }).middleware([requir
 export const saveLetter = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid(), text: z.string().max(50000) }))
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase.from("claims").update({ letter_text: data.text }).eq("id", data.id).eq("status", "analyzed").select("id").maybeSingle();
+    const { data: row, error } = await context.supabase.from("claims").update({ letter_text: data.text }).eq("id", data.id).eq("status", "analyzed").eq("paid", true).select("id").maybeSingle();
     if (error || !row) throw new Error("Could not save your letter.");
     return { saved: true };
   });

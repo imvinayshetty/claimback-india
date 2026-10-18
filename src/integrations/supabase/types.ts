@@ -93,8 +93,12 @@ export type Database = {
           created_at: string
           id: string
           insurer: string | null
+          letter_generations: number
           letter_text: string | null
           paid: boolean
+          payment_status: string
+          payment_submitted_at: string | null
+          payment_txn_id: string | null
           reason_category: string | null
           rejected_amount: number
           status: string
@@ -107,8 +111,12 @@ export type Database = {
           created_at?: string
           id?: string
           insurer?: string | null
+          letter_generations?: number
           letter_text?: string | null
           paid?: boolean
+          payment_status?: string
+          payment_submitted_at?: string | null
+          payment_txn_id?: string | null
           reason_category?: string | null
           rejected_amount?: number
           status?: string
@@ -121,8 +129,12 @@ export type Database = {
           created_at?: string
           id?: string
           insurer?: string | null
+          letter_generations?: number
           letter_text?: string | null
           paid?: boolean
+          payment_status?: string
+          payment_submitted_at?: string | null
+          payment_txn_id?: string | null
           reason_category?: string | null
           rejected_amount?: number
           status?: string
