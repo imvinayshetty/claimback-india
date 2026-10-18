@@ -1,8 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { groundedAnalysis, PAYMENTS_READY } from "./review-rules";
+import { analysisOutput } from "./claim-documents";
 import type { Json } from "@/integrations/supabase/types";
-import { letterBlocker, letterDetails, txnId } from "./letter-rules";
+import { letterBlocker, letterDetails, txnId, ESCALATION_DEFAULT } from "./letter-rules";
 
 async function requireAdmin(supabase: any) {
   const { data: user } = await supabase.auth.getUser();
@@ -15,15 +17,16 @@ async function requireAdmin(supabase: any) {
 export const submitPayment = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid(), txn: txnId }))
   .handler(async ({ data, context }) => {
-    const { data: claim } = await context.supabase.from("claims").select("id, status, paid, payment_status").eq("id", data.id).maybeSingle();
+    const { data: claim } = await context.supabase.from("claims").select("id, status, paid, payment_status").eq("id", data.id).eq("user_id", context.userId).maybeSingle();
     if (!claim) throw new Error("Claim not found.");
     if (claim.status !== "analyzed") throw new Error("Your claim analysis isn’t finished yet.");
     if (claim.paid) return { status: "approved" };
+    if (!PAYMENTS_READY) throw new Error("Payments are not available yet. Please do not send money.");
     if (claim.payment_status === "pending") throw new Error("We’re already checking a payment for this claim.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("claims").update({ payment_status: "pending", payment_txn_id: data.txn.toUpperCase(),
       payment_submitted_at: new Date().toISOString() }).eq("id", claim.id).eq("user_id", context.userId);
-    if (error) throw new Error("Could not save your transaction ID. Please try again.");
+    if (error) throw new Error(error.code === "23505" ? "This transaction reference has already been submitted." : "Could not save your transaction ID. Please try again.");
     return { status: "pending" };
   });
 
@@ -43,10 +46,11 @@ export const adminPendingPayments = createServerFn({ method: "POST" }).middlewar
   });
 
 export const reviewPayment = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
-  .inputValidator(z.object({ id: z.string().uuid(), approve: z.boolean() }))
+  .inputValidator(z.object({ id: z.string().uuid(), approve: z.boolean(), bankVerified: z.boolean().default(false) }))
   .handler(async ({ data, context }) => {
     if (!(await requireAdmin(context.supabase))) throw new Error("Not allowed.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    if (data.approve && !data.bankVerified) throw new Error("Confirm the amount and UTR against the bank receipt before approving.");
     const { data: row, error } = await supabaseAdmin.from("claims")
       .update(data.approve ? { paid: true, payment_status: "approved" } : { payment_status: "rejected" })
       .eq("id", data.id).eq("payment_status", "pending").select("id").maybeSingle();
@@ -57,7 +61,7 @@ export const reviewPayment = createServerFn({ method: "POST" }).middleware([requ
 export const generateLetter = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid(), details: letterDetails }))
   .handler(async ({ data, context }) => {
-    const { data: claim } = await context.supabase.from("claims").select("*").eq("id", data.id).maybeSingle();
+    const { data: claim } = await context.supabase.from("claims").select("*").eq("id", data.id).eq("user_id", context.userId).maybeSingle();
     if (!claim) throw new Error("Claim not found.");
     const blocker = letterBlocker(claim);
     if (blocker) throw new Error(blocker);
@@ -69,16 +73,18 @@ export const generateLetter = createServerFn({ method: "POST" }).middleware([req
       .eq("id", claim.id).eq("user_id", context.userId).eq("letter_generations", claim.letter_generations).select("id").maybeSingle();
     if (!slot) throw new Error("Please try again.");
     const json = (claim.analysis_json ?? {}) as Record<string, any>;
-    const analysis = json["ai"] ?? json["analysis"] ?? {};
+    const parsed = analysisOutput.safeParse(json["ai"]);
+    const analysis = parsed.success ? groundedAnalysis(parsed.data, json["verification"]) : { insurer: claim.insurer, claim_amount: claim.claim_amount, rejected_amount: claim.rejected_amount, clauses_cited: [], arguments: [], missing_documents: [] };
     try {
       const { draftLetter } = await import("./letter.server");
       const today = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" });
       const out = await draftLetter({ ...analysis, insurer: claim.insurer, claim_amount: claim.claim_amount, rejected_amount: claim.rejected_amount }, data.details, today, key);
-      const { error } = await context.supabase.from("claims").update({ letter_text: out.letter,
-        analysis_json: { ...json, escalation: out.escalation, input: { ...(json["input"] ?? {}), ...data.details } } as Json }).eq("id", claim.id);
+      const { error } = await supabaseAdmin.from("claims").update({ letter_text: out.letter,
+        analysis_json: { ...json, escalation: ESCALATION_DEFAULT, input: { ...(json["input"] ?? {}), ...data.details } } as Json }).eq("id", claim.id).eq("user_id", context.userId).eq("paid", true);
       if (error) throw new Error("save");
-      return out;
+      return { ...out, escalation: ESCALATION_DEFAULT };
     } catch (error) {
+      await supabaseAdmin.rpc("refund_letter_slot", { p_id: claim.id, p_user: context.userId });
       const status = error && typeof error === "object" && "statusCode" in error ? (error as any).statusCode : undefined;
       throw new Error(status === 402 || status === 403 ? "Letter drafting is temporarily unavailable. Please contact support." : "We couldn’t draft your letter. Please try again.");
     }
