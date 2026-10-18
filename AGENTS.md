@@ -17,3 +17,4 @@
 - Validate document requirements and file sizes through shared rules on both client and server; a private bucket limit adds storage enforcement.
 - Persist processing status and a per-claim analysis lease before document analysis; results poll durable status and render saved analysis, avoiding duplicate runs.
 - Analysis rate limits are counted from the analysis_runs table and PDF page limits use pdf-lib in shared rules, so client and server enforce the same values.
+- Payment and letter-quota columns on claims are writable only by the server (admin client) via DB triggers; owners cannot self-approve payment.
