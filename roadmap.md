@@ -1,7 +1,7 @@
 # ClaimBack private storage setup
 # Production login correction
 - [x] Send login links to https://claimback-india.vercel.app/login; unit tests and intercepted browser request confirm destination and expired-link recovery.
-- [ ] Deploy updated source to Vercel and verify an actual inbox link: requires owner deployment and hosted redirect allowlist configuration, unavailable through agent tools.
+- [ ] Verify inbox link lands on Vercel: owner must add https://claimback-india.vercel.app to Site URL and Redirect URLs (Cloud → Users → Auth settings → Advanced) and redeploy Vercel.
 - [ ] Include numeric codes in auth email: default managed template currently sends links; custom auth templates require an owner-verified sending domain.
 
 - [x] Create claims, claim_files, admins and owner-only policies.
