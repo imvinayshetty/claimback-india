@@ -26,8 +26,8 @@ export type Claim = {
   fileName?: string | undefined;
   letter?: string | undefined;
   status?: string;
-  analysis?: Analysis;
-  error?: string;
+  analysis?: Analysis | undefined;
+  error?: string | undefined;
 };
 
 export type Analysis = {

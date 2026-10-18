@@ -20,7 +20,7 @@ const steps = [
   { kind: "rejection_letter" as const, title: "Your insurer’s letter", subtitle: "Upload the rejection or settlement letter", description: "The letter explaining why your claim was rejected or reduced.", accept: "application/pdf,image/jpeg,image/png,image/webp,image/gif", format: "PDF, JPG, PNG, WebP or GIF" },
   { kind: "policy" as const, title: "Your policy document", subtitle: "Upload your policy or schedule", description: "The PDF showing your coverage, limits and policy conditions.", accept: "application/pdf", format: "PDF only" },
   { kind: "other" as const, title: "Supporting documents", subtitle: "Add anything else that supports your claim", description: "Discharge summaries, hospital bills and other relevant records. This step is optional.", accept: "application/pdf,image/jpeg,image/png,image/webp,image/gif", format: "PDF, JPG, PNG, WebP or GIF" },
-];
+] as const;
 function NewClaim() {
   const nav = useNavigate();
   const { user, ready } = useAuth();
