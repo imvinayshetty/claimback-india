@@ -48,7 +48,7 @@ function NewClaim() {
           </div>
         </fieldset>
 
-        {[["name", "Your name"], ["insurer", "Insurance company"], ["policyNo", "Policy number"], ["claimNo", "Claim number"]].map(([k, l]) => (
+        {([["name", "Your name"], ["insurer", "Insurance company"], ["policyNo", "Policy number"], ["claimNo", "Claim number"]] as const).map(([k, l]) => (
           <label key={k} className="block"><span className="mb-1 block font-medium">{l}</span>
             <input className="field" value={(f as any)[k]} onChange={set(k)} /></label>
         ))}
