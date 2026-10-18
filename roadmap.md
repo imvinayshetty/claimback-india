@@ -1,7 +1,8 @@
 # ClaimBack private storage setup
 # Production login correction
-- [ ] Send login links to https://claimback-india.vercel.app/login and verify login handling.
-- [ ] Check numeric-code email support and identify any required hosted settings changes.
+- [x] Send login links to https://claimback-india.vercel.app/login; unit tests and intercepted browser request confirm destination and expired-link recovery.
+- [ ] Deploy updated source to Vercel and verify an actual inbox link: requires owner deployment and hosted redirect allowlist configuration, unavailable through agent tools.
+- [ ] Include numeric codes in auth email: default managed template currently sends links; custom auth templates require an owner-verified sending domain.
 
 - [x] Create claims, claim_files, admins and owner-only policies.
 - [x] Create private claim-docs bucket and add the supplied admin email.
