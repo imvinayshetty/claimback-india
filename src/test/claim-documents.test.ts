@@ -65,3 +65,15 @@ describe("Analysis limits", () => {
     expect(analysisOutput.safeParse({ ...valid, confidence: 1.2 }).success).toBe(false);
   });
 });
+
+import { sniffType, documentError as docErr } from "@/lib/claim-documents";
+describe("server-side file type sniffing", () => {
+  it("rejects a non-PDF renamed as PDF", () => {
+    const fake = new TextEncoder().encode("<html>not a pdf</html>");
+    expect(docErr({ size: fake.length, type: sniffType(fake) }, "policy")).not.toBe("");
+  });
+  it("accepts real PDF and PNG headers", () => {
+    expect(sniffType(new TextEncoder().encode("%PDF-1.7"))).toBe("application/pdf");
+    expect(sniffType(new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))).toBe("image/png");
+  });
+});
