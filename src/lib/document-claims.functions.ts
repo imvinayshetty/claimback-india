@@ -155,7 +155,9 @@ export const expireClaimAnalysis = createServerFn({ method: "POST" }).middleware
     if (!row || row.status !== "processing" || !analysisExpired(row.created_at, row.analysis_started_at)) return { expired: false };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const json = (row.analysis_json ?? {}) as Record<string, Json>;
-    const { data: changed } = await supabaseAdmin.from("claims").update({ status: "failed", analysis_json: { ...json, error: "The review was interrupted or took too long. You can retry with the same documents.", retryable: true } })
-      .eq("id", row.id).eq("user_id", context.userId).eq("status", "processing").eq("analysis_lease_id", row.analysis_lease_id ?? "00000000-0000-0000-0000-000000000000").select("id").maybeSingle();
+    let update = supabaseAdmin.from("claims").update({ status: "failed", analysis_json: { ...json, error: "The review was interrupted or took too long. You can retry with the same documents.", retryable: true } })
+      .eq("id", row.id).eq("user_id", context.userId).eq("status", "processing");
+    update = row.analysis_lease_id ? update.eq("analysis_lease_id", row.analysis_lease_id) : update.is("analysis_lease_id", null);
+    const { data: changed } = await update.select("id").maybeSingle();
     return { expired: !!changed };
   });

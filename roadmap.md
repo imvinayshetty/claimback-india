@@ -9,12 +9,13 @@
 - [x] Store private documents and process claims with document-based analysis.
 - [x] Show polling progress, failure states and document deletion.
 - [x] Test submission rules and verify a real PDF/image analysis call.
-- [ ] Verify signed-in submission, polling and deletion end-to-end.
+- [x] Verify signed-in submission, polling and deletion end-to-end.
 
 # Full code-review follow-up
-- [ ] Close unpaid letter exposure, expire analysis leases, support safe retries, and purge failed uploads.
-- [ ] Verify PDF text quotes and exclude unsupported quotations from letter drafting.
-- [ ] Harden owner mutations, atomic quotas, aggregate uploads, and unique payment references; refund failed letter slots.
-- [ ] Correct privacy disclosures and sourced escalation guidance; prevent payments until launch prerequisites are supplied.
-- [ ] Verify live policies, schedule, auth settings, regression tests and signed-in flows; add synthetic AI evaluations.
+- [x] Close unpaid letter exposure, expire analysis leases, support safe retries, and purge failed uploads.
+- [x] Verify PDF text quotes and exclude unsupported quotations from letter drafting.
+- [x] Harden owner mutations, atomic quotas, aggregate uploads, and unique payment references; refund failed letter slots.
+- [x] Correct privacy disclosures and sourced escalation guidance; prevent payments until launch prerequisites are supplied.
+- [x] Verify live grants/policies and existing daily schedule, regression tests and signed-in upload/results/deletion/admin-denial flows; evaluate synthetic AI letter and document examples.
+- [ ] Production email delivery and redirect settings: pending owner sending domain and published address; hosted auth-setting read not available through current tools.
 - [ ] Launch prerequisites: owner QR, legal identity/contact/refund/jurisdiction decisions, legal review and production email/domain settings.
