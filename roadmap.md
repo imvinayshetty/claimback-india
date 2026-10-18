@@ -19,3 +19,9 @@
 - [x] Verify live grants/policies and existing daily schedule, regression tests and signed-in upload/results/deletion/admin-denial flows; evaluate synthetic AI letter and document examples.
 - [ ] Production email delivery and redirect settings: pending owner sending domain and published address; hosted auth-setting read not available through current tools.
 - [ ] Launch prerequisites: owner QR, legal identity/contact/refund/jurisdiction decisions, legal review and production email/domain settings.
+# Second review follow-up
+- [ ] Normalize quote matching, search all pages, report real page ranges, and add close-match probes.
+- [ ] Repair transient retry classification and remove stale success fields; backfill unpaid letters.
+- [ ] Add scanned-policy transcription fallback with explicitly unverified OCR matches.
+- [ ] Commit a 20-case synthetic evaluation set, repeatable harness and review report.
+- [ ] Confirm hosted safeguards and cleanup schedule; evaluate supported server-side start.
