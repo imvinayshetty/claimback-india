@@ -2,6 +2,10 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { adminClaims } from "@/lib/claims.functions";
+import { adminPendingPayments, reviewPayment } from "@/lib/letter.functions";
+import { LETTER_PRICE_INR } from "@/lib/letter-rules";
+import { useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
 import { useAuth, SignInRequired } from "@/components/Auth";
 import { inr, rowToClaim, REASONS } from "@/lib/claims";
 
@@ -30,7 +34,8 @@ function Admin() {
   const claims = data.claims.map(rowToClaim);
   return (
     <div className="container-page py-12">
-      <h1 className="text-3xl">Claims</h1>
+      <PendingPayments />
+      <h1 className="mt-10 text-3xl">Claims</h1>
       <p className="mt-1 text-muted-foreground">{claims.length} of your claims submitted</p>
       <div className="mt-6 space-y-3">
         {claims.map((c) => (
@@ -43,4 +48,32 @@ function Admin() {
       </div>
     </div>
   );
+}
+
+function PendingPayments() {
+  const { user } = useAuth();
+  const load = useServerFn(adminPendingPayments);
+  const review = useServerFn(reviewPayment);
+  const qc = useQueryClient();
+  const [msg, setMsg] = useState("");
+  const { data } = useQuery({ queryKey: ["admin-payments", user?.id], queryFn: () => load(), enabled: !!user });
+  if (!data?.allowed) return null;
+  async function act(id: string, approve: boolean) {
+    if (!approve && !window.confirm("Reject this payment?")) return;
+    setMsg(""); try { await review({ data: { id, approve } }); setMsg(approve ? "Approved" : "Rejected"); await qc.invalidateQueries({ queryKey: ["admin-payments"] }); }
+    catch (e) { setMsg(e instanceof Error ? e.message : "Could not update."); }
+  }
+  return <section>
+    <h1 className="text-3xl">Pending payments</h1>
+    <p className="mt-1 text-muted-foreground">{data.payments.length} waiting · ₹{LETTER_PRICE_INR} each</p>
+    {msg && <p role="status" className="mt-2 text-sm">{msg}</p>}
+    <div className="mt-6 space-y-3">
+      {data.payments.map((p) => <div key={p.id} className="card-soft space-y-3 p-4">
+        <div className="flex flex-wrap justify-between gap-2"><span className="font-mono text-lg font-semibold">{p.txn}</span><span className="text-sm text-muted-foreground">{p.submittedAt ? new Date(p.submittedAt).toLocaleString("en-IN") : ""}</span></div>
+        <p className="text-sm text-muted-foreground">{p.email} · Claim {p.id.slice(0, 8)}</p>
+        <div className="flex gap-3"><button className="btn btn-primary" onClick={() => act(p.id, true)}>Approve</button><button className="btn btn-ghost" onClick={() => act(p.id, false)}>Reject</button></div>
+      </div>)}
+      {!data.payments.length && <p className="text-muted-foreground">No payments waiting.</p>}
+    </div>
+  </section>;
 }

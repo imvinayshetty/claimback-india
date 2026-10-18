@@ -17,6 +17,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ClaimIdRouteImport } from './routes/claim.$id'
 import { Route as ClaimIdLetterRouteImport } from './routes/claim.$id_.letter'
+import { Route as ClaimIdUnlockRouteImport } from './routes/claim.$id_.unlock'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +59,11 @@ const ClaimIdLetterRoute = ClaimIdLetterRouteImport.update({
   path: '/claim/$id/letter',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ClaimIdUnlockRoute = ClaimIdUnlockRouteImport.update({
+  id: '/claim/$id_/unlock',
+  path: '/claim/$id/unlock',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +74,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id/letter': typeof ClaimIdLetterRoute
+  '/claim/$id/unlock': typeof ClaimIdUnlockRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +85,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id/letter': typeof ClaimIdLetterRoute
+  '/claim/$id/unlock': typeof ClaimIdUnlockRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +97,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/claim/$id': typeof ClaimIdRoute
   '/claim/$id_/letter': typeof ClaimIdLetterRoute
+  '/claim/$id_/unlock': typeof ClaimIdUnlockRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +110,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/claim/$id'
     | '/claim/$id/letter'
+    | '/claim/$id/unlock'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +121,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/claim/$id'
     | '/claim/$id/letter'
+    | '/claim/$id/unlock'
   id:
     | '__root__'
     | '/'
@@ -121,6 +132,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/claim/$id'
     | '/claim/$id_/letter'
+    | '/claim/$id_/unlock'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +144,7 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   ClaimIdRoute: typeof ClaimIdRoute
   ClaimIdLetterRoute: typeof ClaimIdLetterRoute
+  ClaimIdUnlockRoute: typeof ClaimIdUnlockRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -192,6 +205,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ClaimIdLetterRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/claim/$id_/unlock': {
+      id: '/claim/$id_/unlock'
+      path: '/claim/$id/unlock'
+      fullPath: '/claim/$id/unlock'
+      preLoaderRoute: typeof ClaimIdUnlockRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -204,6 +224,7 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   ClaimIdRoute: ClaimIdRoute,
   ClaimIdLetterRoute: ClaimIdLetterRoute,
+  ClaimIdUnlockRoute: ClaimIdUnlockRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
