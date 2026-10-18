@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import { countPdfPages, documentError, pageLimitError, rateLimitError, validateDocuments, type DocumentKind } from "./claim-documents";
+import { countPdfPages, documentError, MAX_FILE_BYTES, sniffType, pageLimitError, rateLimitError, validateDocuments, type DocumentKind } from "./claim-documents";
 import { analyzeDocuments } from "./analyze-claim.server";
 import { aiToLegacy, letterText, type Claim } from "./claims";
 import type { Json } from "@/integrations/supabase/types";
@@ -22,8 +22,12 @@ export const submitDocuments = createServerFn({ method: "POST" }).middleware([re
   .handler(async ({ data, context }) => {
     const files: { file: File; kind: DocumentKind }[] = [];
     for (const kind of ["rejection_letter", "policy", "other"] as const) {
-      for (const file of data.getAll(kind)) {
-        if (!(file instanceof File)) throw new Error("Invalid document.");
+      for (const raw of data.getAll(kind)) {
+        if (!(raw instanceof File)) throw new Error("Invalid document.");
+        if (raw.size > MAX_FILE_BYTES) throw new Error("Each file must be 10 MB or smaller.");
+        const bytes = new Uint8Array(await raw.arrayBuffer());
+        // Trust the file's content, not the type the browser claims.
+        const file = new File([bytes], raw.name, { type: sniffType(bytes.subarray(0, 16)) });
         files.push({ file, kind });
       }
     }
@@ -75,8 +79,10 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
       if (fileError || !records) throw new Error("Could not read your documents.");
       const files = [];
       for (const record of records) {
-        const { data: blob, error: downloadError } = await context.supabase.storage.from("claim-docs").download(record.storage_path);
-        if (downloadError || !blob) throw new Error("Could not read your documents.");
+        const { data: stored, error: downloadError } = await context.supabase.storage.from("claim-docs").download(record.storage_path);
+        if (downloadError || !stored) throw new Error("Could not read your documents.");
+        const raw = new Uint8Array(await stored.arrayBuffer());
+        const blob = new Blob([raw], { type: sniffType(raw.subarray(0, 16)) });
         const validation = documentError(blob, record.kind as DocumentKind);
         if (validation) throw new Error(validation);
         if (blob.type === "application/pdf") { const pages = pageLimitError(await countPdfPages(await blob.arrayBuffer())); if (pages) throw new Error(pages); }
