@@ -4,6 +4,8 @@ export const Route = createFileRoute("/terms")({
   head: () => ({ meta: [
     { title: "Terms of use — ClaimBack" },
     { name: "description", content: "Terms for using ClaimBack." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Terms of use — ClaimBack" },
     { property: "og:description", content: "Drafting help, not legal advice." },
   ] }),

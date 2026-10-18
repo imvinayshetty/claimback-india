@@ -1,13 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { CheckCircle2, FileText } from "lucide-react";
 import { analyse, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
 import { Disclaimer } from "@/components/Disclaimer";
+import { useAuth, SignInRequired } from "@/components/Auth";
 
 export const Route = createFileRoute("/claim/$id")({
   head: () => ({ meta: [
     { title: "Your claim analysis — ClaimBack" },
     { name: "description", content: "Plain-language analysis of your insurance claim decision." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Your claim analysis — ClaimBack" },
     { property: "og:description", content: "See how strong your appeal is and what to do next." },
   ] }),
@@ -15,17 +18,20 @@ export const Route = createFileRoute("/claim/$id")({
 });
 
 export function useClaim(id: string) {
-  const [c, setC] = useState<Claim | null | undefined>(undefined);
-  useEffect(() => setC(getClaim(id) ?? null), [id]);
-  return c;
+  const { user } = useAuth();
+  return useQuery({ queryKey: ["claim", user?.id, id], queryFn: () => getClaim(id), enabled: !!user });
 }
 
 const tone = { Strong: "bg-success", Fair: "bg-warning", Uncertain: "bg-muted-foreground" };
 
 function Result() {
   const { id } = Route.useParams();
-  const c = useClaim(id);
-  if (c === undefined) return <div className="container-page py-20" />;
+  const { user, ready } = useAuth();
+  const { data: c, error, isPending } = useClaim(id);
+  if (!ready) return <div className="container-page py-20">Loading…</div>;
+  if (!user) return <SignInRequired />;
+  if (error) return <div role="alert" className="container-page py-20">Could not load your claim. Please try again.</div>;
+  if (isPending) return <div className="container-page py-20">Loading…</div>;
   if (!c) return <div className="container-page py-20 text-center"><p>Claim not found.</p><Link to="/new-claim" className="btn btn-primary mt-6">Start a new check</Link></div>;
   const a = analyse(c);
   return (

@@ -12,6 +12,9 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { AuthProvider, useAuth } from "@/components/Auth";
+import { Button } from "@/components/Button";
+import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
   return (
@@ -73,11 +76,19 @@ function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   return (
     <QueryClientProvider client={queryClient}>
+      <AuthProvider><AppLayout /></AuthProvider>
+    </QueryClientProvider>
+  );
+}
+
+function AppLayout() {
+  const { user } = useAuth();
+  return <>
       <header className="sticky top-0 z-20 border-b bg-background/90 backdrop-blur">
         <div className="container-page flex h-16 items-center justify-between">
           <Link to="/" className="font-display text-xl font-semibold text-primary">ClaimBack</Link>
           <nav className="flex items-center gap-2 text-sm">
-            <Link to="/login" className="px-3 py-2 text-muted-foreground hover:text-foreground">Log in</Link>
+            {user ? <Button className="px-3 py-2 text-muted-foreground" onClick={() => supabase.auth.signOut()}>Log out</Button> : <Link to="/login" className="px-3 py-2 text-muted-foreground hover:text-foreground">Log in</Link>}
             <Link to="/new-claim" className="btn btn-primary !min-h-0 !py-2 !px-4 text-sm">Start</Link>
           </nav>
         </div>
@@ -93,6 +104,5 @@ function RootComponent() {
           </div>
         </div>
       </footer>
-    </QueryClientProvider>
-  );
+    </>;
 }

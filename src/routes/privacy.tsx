@@ -4,6 +4,8 @@ export const Route = createFileRoute("/privacy")({
   head: () => ({ meta: [
     { title: "Privacy policy — ClaimBack" },
     { name: "description", content: "How ClaimBack handles your health and claim data." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Privacy policy — ClaimBack" },
     { property: "og:description", content: "Your data, your control." },
   ] }),

@@ -1,3 +1,6 @@
+import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
+
 export type Reason = "ped" | "room_rent" | "non_payable" | "waiting" | "documents" | "other";
 
 export const REASONS: { id: Reason; label: string; blurb: string }[] = [
@@ -20,7 +23,8 @@ export type Claim = {
   amountPaid: number;
   reason: Reason;
   details: string;
-  fileName?: string;
+  fileName?: string | undefined;
+  letter?: string | undefined;
 };
 
 export type Analysis = {
@@ -30,17 +34,19 @@ export type Analysis = {
   documents: string[];
 };
 
-const KEY = "claimback.claims";
-
-export function listClaims(): Claim[] {
-  if (typeof window === "undefined") return [];
-  try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch { return []; }
+export function rowToClaim(row: Tables<"claims">): Claim {
+  const json = row.analysis_json as { input?: Partial<Claim> } | null;
+  const input = json?.input;
+  const reason = REASONS.find((r) => r.id === row.reason_category)?.id ?? "other";
+  return { id: row.id, createdAt: row.created_at, name: input?.name ?? "", insurer: row.insurer ?? "",
+    policyNo: input?.policyNo ?? "", claimNo: input?.claimNo ?? "", details: input?.details ?? "",
+    amountClaimed: row.claim_amount, amountPaid: row.claim_amount - row.rejected_amount,
+    reason, fileName: input?.fileName, letter: row.letter_text ?? undefined };
 }
-export function getClaim(id: string) { return listClaims().find((c) => c.id === id); }
-export function saveClaim(c: Omit<Claim, "id" | "createdAt">): Claim {
-  const claim = { ...c, id: Math.random().toString(36).slice(2, 10), createdAt: new Date().toISOString() };
-  localStorage.setItem(KEY, JSON.stringify([claim, ...listClaims()]));
-  return claim;
+export async function getClaim(id: string) {
+  const { data, error } = await supabase.from("claims").select("*").eq("id", id).maybeSingle();
+  if (error) throw new Error("Could not load your claim.");
+  return data ? rowToClaim(data) : null;
 }
 
 export function analyse(c: Claim): Analysis {
@@ -107,7 +113,7 @@ export function analyse(c: Claim): Analysis {
 export const inr = (n: number) => "₹" + (n || 0).toLocaleString("en-IN");
 
 export function letterText(c: Claim, a: Analysis) {
-  const r = REASONS.find((x) => x.id === c.reason)!.label;
+  const r = REASONS.find((x) => x.id === c.reason)?.label ?? "Other reason";
   const today = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
   return `To,
 The Grievance Redressal Officer
