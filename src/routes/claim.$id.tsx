@@ -9,6 +9,8 @@ export const Route = createFileRoute("/claim/$id")({
   head: () => ({ meta: [
     { title: "Your claim analysis — ClaimBack" },
     { name: "description", content: "Plain-language analysis of your insurance claim decision." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Your claim analysis — ClaimBack" },
     { property: "og:description", content: "See how strong your appeal is and what to do next." },
   ] }),

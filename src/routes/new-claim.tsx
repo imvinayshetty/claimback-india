@@ -12,6 +12,8 @@ export const Route = createFileRoute("/new-claim")({
   head: () => ({ meta: [
     { title: "Check my claim — ClaimBack" },
     { name: "description", content: "Tell us about your rejected or reduced claim." },
+    { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Check my claim — ClaimBack" },
     { property: "og:description", content: "Upload your letter and answer a few simple questions." },
   ] }),

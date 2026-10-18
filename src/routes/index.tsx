@@ -9,7 +9,9 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "ClaimBack — Claim rejected? Find out if you can fight it" },
       { name: "description", content: "Check in 5 minutes if your rejected or reduced health insurance claim in India can be appealed, and get a ready appeal letter." },
-      { property: "og:title", content: "ClaimBack — Fight a rejected health insurance claim" },
+      { property: "og:type", content: "website" },
+    { name: "twitter:card", content: "summary_large_image" },
+    { property: "og:title", content: "ClaimBack — Fight a rejected health insurance claim" },
       { property: "og:description", content: "Upload your rejection letter, get a plain-language analysis, an appeal letter and escalation steps." },
     ],
   }),
