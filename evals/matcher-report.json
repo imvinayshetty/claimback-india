@@ -1,0 +1,404 @@
+{
+  "generatedAt": "2026-10-18T15:20:19.775Z",
+  "mode": "offline",
+  "report": [
+    {
+      "id": "printed-page-offset",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "printed-page-offset",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            "Cover",
+            "Room rent is limited to 5000."
+          ],
+          "claimedPage": "1",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "page-prefix",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "page-prefix",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            "Cover",
+            "Room rent is limited to 5000."
+          ],
+          "claimedPage": "Page 2",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "case",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "case",
+          "quote": "ROOM RENT IS LIMITED TO 5000.",
+          "pages": [
+            "Room rent is limited to 5000."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "curly-apostrophe",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "curly-apostrophe",
+          "quote": "Insurer's liability",
+          "pages": [
+            "Insurer’s liability"
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "curly-double-quotes",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "curly-double-quotes",
+          "quote": "The \"policy\" covers treatment.",
+          "pages": [
+            "The “policy” covers treatment."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "line-hyphen",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "line-hyphen",
+          "quote": "Hospitalization expenses are covered.",
+          "pages": [
+            "Hospitali-\nzation expenses are covered."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "page-spanning",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "page-spanning",
+          "quote": "Hospitalization expenses are covered subject to the policy limits.",
+          "pages": [
+            "Hospitalization expenses are covered",
+            "subject to the policy limits."
+          ],
+          "expected": "verified",
+          "page": 1,
+          "endPage": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "endPage": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "dash",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "dash",
+          "quote": "Waiting period - 30 days.",
+          "pages": [
+            "Waiting period — 30 days."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "whitespace",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "whitespace",
+          "quote": "Room rent is limited.",
+          "pages": [
+            "Room  rent\n is\tlimited."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "soft-hyphen",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "soft-hyphen",
+          "quote": "Hospitalization",
+          "pages": [
+            "Hospitali­zation"
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "ligature",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "ligature",
+          "quote": "Benefits apply.",
+          "pages": [
+            "Beneﬁts apply."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "wrong-page",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "wrong-page",
+          "quote": "Covered treatment",
+          "pages": [
+            "Covered treatment"
+          ],
+          "claimedPage": "Page 99",
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "unknown-page",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "unknown-page",
+          "quote": "Covered treatment",
+          "pages": [
+            "Cover",
+            "Covered treatment"
+          ],
+          "claimedPage": "not found",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "near-word",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "near-word",
+          "quote": "Room rent is limited to 5000 per day.",
+          "pages": [
+            "Room rent is capped to 5000 per day."
+          ],
+          "expected": "close_match",
+          "page": 1
+        },
+        "actual": {
+          "status": "close_match",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "amount-mismatch",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "amount-mismatch",
+          "quote": "Room rent is limited to 6000 per day.",
+          "pages": [
+            "Room rent is limited to 5000 per day."
+          ],
+          "expected": "close_match",
+          "page": 1
+        },
+        "actual": {
+          "status": "close_match",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "hallucination",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "hallucination",
+          "quote": "All hospital treatment is fully refundable without limits.",
+          "pages": [
+            "Room rent is limited to 5000."
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "id": "scanned",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "scanned",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            ""
+          ],
+          "expected": "unverified"
+        },
+        "actual": {
+          "status": "unverified"
+        }
+      }
+    },
+    {
+      "id": "no-support",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "no-support",
+          "quote": "not found",
+          "pages": [
+            "Room rent is limited."
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "id": "hyphen-preserved",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "hyphen-preserved",
+          "quote": "Non-payable items are excluded.",
+          "pages": [
+            "Non-payable items are excluded."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "empty",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "empty",
+          "quote": "",
+          "pages": [
+            "Covered treatment"
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    }
+  ]
+}
