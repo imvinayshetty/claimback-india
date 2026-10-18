@@ -13,3 +13,6 @@
 - Store ancillary claim form fields in analysis_json.input to preserve the requested table schema.
 - Keep admin membership checks server-side and restricted to /admin; membership does not bypass owner-only access.
 - Document paths use user UUID/claim UUID/file to align private Storage policies with claim ownership.
+- Document submission and analysis use authenticated TanStack server functions, not separate Edge Functions, to preserve the supported runtime and validate ownership.
+- Validate document requirements and file sizes through shared rules on both client and server; a private bucket limit adds storage enforcement.
+- Persist processing status and a per-claim analysis lease before document analysis; results poll durable status and render saved analysis, avoiding duplicate runs.

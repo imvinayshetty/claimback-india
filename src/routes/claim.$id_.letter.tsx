@@ -28,12 +28,13 @@ function Letter() {
   const [saveState, setSaveState] = useState("");
   const [text, setText] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  useEffect(() => { if (claim) setText(claim.letter ?? letterText(claim, analyse(claim))); }, [claim]);
+  useEffect(() => { if (claim?.status === "analyzed") setText(claim.letter ?? letterText(claim, claim.analysis ?? analyse(claim))); }, [claim]);
   if (!ready) return <div className="container-page py-20">Loading…</div>;
   if (!user) return <SignInRequired />;
   if (error) return <div className="container-page py-20">Could not load your letter.</div>;
   if (isPending) return <div className="container-page py-20">Loading…</div>;
   if (!claim) return <div className="container-page py-20">Claim not found.</div>;
+  if (claim.status !== "analyzed") return <div className="container-page space-y-4 py-20"><p>Your appeal letter will be available after analysis is complete.</p><Link to="/claim/$id" params={{ id }} className="btn btn-primary">View claim status</Link></div>;
   if (text === null) return <div className="container-page py-20">Loading…</div>;
   return (
     <div className="container-page max-w-2xl space-y-6 py-12">
