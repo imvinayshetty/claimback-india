@@ -14,7 +14,101 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      admins: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      claim_files: {
+        Row: {
+          claim_id: string
+          id: string
+          kind: string
+          storage_path: string
+          user_id: string
+        }
+        Insert: {
+          claim_id: string
+          id?: string
+          kind: string
+          storage_path: string
+          user_id?: string
+        }
+        Update: {
+          claim_id?: string
+          id?: string
+          kind?: string
+          storage_path?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "claim_files_claim_id_user_id_fkey"
+            columns: ["claim_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "claims"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
+      }
+      claims: {
+        Row: {
+          analysis_json: Json | null
+          case_strength: string | null
+          claim_amount: number
+          created_at: string
+          id: string
+          insurer: string | null
+          letter_text: string | null
+          paid: boolean
+          reason_category: string | null
+          rejected_amount: number
+          status: string
+          user_id: string
+        }
+        Insert: {
+          analysis_json?: Json | null
+          case_strength?: string | null
+          claim_amount?: number
+          created_at?: string
+          id?: string
+          insurer?: string | null
+          letter_text?: string | null
+          paid?: boolean
+          reason_category?: string | null
+          rejected_amount?: number
+          status?: string
+          user_id?: string
+        }
+        Update: {
+          analysis_json?: Json | null
+          case_strength?: string | null
+          claim_amount?: number
+          created_at?: string
+          id?: string
+          insurer?: string | null
+          letter_text?: string | null
+          paid?: boolean
+          reason_category?: string | null
+          rejected_amount?: number
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
