@@ -66,6 +66,7 @@ function Letter() {
       <style>{`@media print { body * { visibility: hidden; } #print-letter, #print-letter * { visibility: visible; } #print-letter { position: absolute; inset: 0; display: block !important; white-space: pre-wrap; font: 12pt/1.6 serif; padding: 2cm; } }`}</style>
       <Link to="/claim/$id" params={{ id }} className="text-sm text-muted-foreground print:hidden">← Back to analysis</Link>
       <h1 className="text-3xl">Your appeal letter</h1>
+      <Disclaimer />
       <section className="card-soft space-y-4 p-6">
         <h2 className="text-xl">Your details</h2>
         <p className="text-sm text-muted-foreground">Leave anything blank you don’t know — it will appear as a [PLACEHOLDER] to fill in later.</p>

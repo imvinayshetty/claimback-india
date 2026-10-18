@@ -46,7 +46,7 @@ function DocumentDeletion({ id }: { id: string }) {
       <Button className="btn btn-ghost text-destructive" disabled={busy} onClick={async () => {
         if (!window.confirm("Delete this claim, its documents, analysis and letter permanently? This cannot be undone.")) return;
         setState("Deleting…");
-        try { await removeAll({ data: { id } }); qc.removeQueries({ queryKey: ["claim", id] }); navigate({ to: "/" }); }
+        try { await removeAll({ data: { id } }); qc.removeQueries({ queryKey: ["claim"] }); navigate({ to: "/" }); }
         catch (error) { setState(error instanceof Error ? error.message : "Could not delete your data."); }
       }}><Trash2 size={18} />Delete my data</Button>
     </div>
