@@ -32,6 +32,27 @@ export type Database = {
         }
         Relationships: []
       }
+      analysis_runs: {
+        Row: {
+          claim_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          claim_id: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Update: {
+          claim_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       claim_files: {
         Row: {
           claim_id: string
