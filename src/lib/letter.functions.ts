@@ -69,13 +69,13 @@ export const generateLetter = createServerFn({ method: "POST" }).middleware([req
       .eq("id", claim.id).eq("user_id", context.userId).eq("letter_generations", claim.letter_generations).select("id").maybeSingle();
     if (!slot) throw new Error("Please try again.");
     const json = (claim.analysis_json ?? {}) as Record<string, any>;
-    const analysis = json.ai ?? json.analysis ?? {};
+    const analysis = json["ai"] ?? json["analysis"] ?? {};
     try {
       const { draftLetter } = await import("./letter.server");
       const today = new Date().toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric", timeZone: "Asia/Kolkata" });
       const out = await draftLetter({ ...analysis, insurer: claim.insurer, claim_amount: claim.claim_amount, rejected_amount: claim.rejected_amount }, data.details, today, key);
       const { error } = await context.supabase.from("claims").update({ letter_text: out.letter,
-        analysis_json: { ...json, escalation: out.escalation, input: { ...(json.input ?? {}), ...data.details } } as Json }).eq("id", claim.id);
+        analysis_json: { ...json, escalation: out.escalation, input: { ...(json["input"] ?? {}), ...data.details } } as Json }).eq("id", claim.id);
       if (error) throw new Error("save");
       return out;
     } catch (error) {
