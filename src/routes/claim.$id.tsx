@@ -153,7 +153,7 @@ function Card({ icon, title, children }: { icon: React.ReactNode; title: string;
 }
 function QuoteBadge({ match }: { match?: QuoteMatch | undefined }) {
   const verified = match?.status === "verified";
-  return <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${verified ? "border-success bg-success/15" : "border-warning bg-warning/15"}`}>{verified ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}{verified ? `Verified in PDF text, page ${match.page}` : match?.status === "not_found" ? "Not found in policy text" : "Unverified — no readable text layer"}</span>;
+  return <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${verified ? "border-success bg-success/15" : "border-warning bg-warning/15"}`}>{verified ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}{verified ? `Verified in PDF text, ${match.endPage ? `pages ${match.page}–${match.endPage}` : `page ${match.page}`}` : match?.status === "close_match" ? `Close match${match.source === "ocr" ? " in scanned text" : ""}, page ${match.page} — check wording` : match?.status === "not_found" ? "No reliable text match — check policy" : "Unverified — no readable text layer"}</span>;
 }
 function RetryAnalysis({ id }: { id: string }) {
   const retry = useServerFn(analyzeClaim);

@@ -18,7 +18,8 @@
 - Reserve analysis with a database-atomic timed lease and run counter; stale results cannot overwrite a replacement lease, and results reads expire interrupted work.
 - Analysis rate limits are counted from the analysis_runs table and PDF page limits use pdf-lib in shared rules, so client and server enforce the same values.
 - All claim/file mutations and uploads use privileged clients only after validated ownership; authenticated clients retain owner-scoped reads but no direct writes, preventing workflow and retention tampering.
-- Exact PDF text matching is server-only; only verified quotations enter letter drafting, while scanned documents remain unverified.
+- Policy evidence extraction is server-only; normalize and search PDF text across physical pages, but AI-assisted scanned transcription and fuzzy matches never independently verify letter quotations.
 - Unpaid claims contain no letter text; payment availability is a server-enforced launch gate, and transaction references are uniquely indexed.
 - Submission quotas are database-atomic and retained separately from deletable claims; failed letter-generation reservations are refunded atomically.
 - Retention uses analysis completion or upload time when analysis never completes, including failed claims; keep the managed daily cleanup schedule.
+- Synthetic evaluation scripts reuse the production analysis prompt and matcher, stop on a gateway failure and retain only synthetic reports, so review never exposes owner-private claims.

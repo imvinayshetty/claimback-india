@@ -1,0 +1,1217 @@
+{
+  "generatedAt": "2026-10-18T15:22:30.752Z",
+  "mode": "live",
+  "report": [
+    {
+      "id": "printed-page-offset",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "printed-page-offset",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            "Cover",
+            "Room rent is limited to 5000."
+          ],
+          "claimedPage": "1",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "page-prefix",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "page-prefix",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            "Cover",
+            "Room rent is limited to 5000."
+          ],
+          "claimedPage": "Page 2",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "case",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "case",
+          "quote": "ROOM RENT IS LIMITED TO 5000.",
+          "pages": [
+            "Room rent is limited to 5000."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "curly-apostrophe",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "curly-apostrophe",
+          "quote": "Insurer's liability",
+          "pages": [
+            "Insurer’s liability"
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "curly-double-quotes",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "curly-double-quotes",
+          "quote": "The \"policy\" covers treatment.",
+          "pages": [
+            "The “policy” covers treatment."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "line-hyphen",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "line-hyphen",
+          "quote": "Hospitalization expenses are covered.",
+          "pages": [
+            "Hospitali-\nzation expenses are covered."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "page-spanning",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "page-spanning",
+          "quote": "Hospitalization expenses are covered subject to the policy limits.",
+          "pages": [
+            "Hospitalization expenses are covered",
+            "subject to the policy limits."
+          ],
+          "expected": "verified",
+          "page": 1,
+          "endPage": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "endPage": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "dash",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "dash",
+          "quote": "Waiting period - 30 days.",
+          "pages": [
+            "Waiting period — 30 days."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "whitespace",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "whitespace",
+          "quote": "Room rent is limited.",
+          "pages": [
+            "Room  rent\n is\tlimited."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "soft-hyphen",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "soft-hyphen",
+          "quote": "Hospitalization",
+          "pages": [
+            "Hospitali­zation"
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "ligature",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "ligature",
+          "quote": "Benefits apply.",
+          "pages": [
+            "Beneﬁts apply."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "wrong-page",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "wrong-page",
+          "quote": "Covered treatment",
+          "pages": [
+            "Covered treatment"
+          ],
+          "claimedPage": "Page 99",
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "unknown-page",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "unknown-page",
+          "quote": "Covered treatment",
+          "pages": [
+            "Cover",
+            "Covered treatment"
+          ],
+          "claimedPage": "not found",
+          "expected": "verified",
+          "page": 2
+        },
+        "actual": {
+          "status": "verified",
+          "page": 2,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "near-word",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "near-word",
+          "quote": "Room rent is limited to 5000 per day.",
+          "pages": [
+            "Room rent is capped to 5000 per day."
+          ],
+          "expected": "close_match",
+          "page": 1
+        },
+        "actual": {
+          "status": "close_match",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "amount-mismatch",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "amount-mismatch",
+          "quote": "Room rent is limited to 6000 per day.",
+          "pages": [
+            "Room rent is limited to 5000 per day."
+          ],
+          "expected": "close_match",
+          "page": 1
+        },
+        "actual": {
+          "status": "close_match",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "hallucination",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "hallucination",
+          "quote": "All hospital treatment is fully refundable without limits.",
+          "pages": [
+            "Room rent is limited to 5000."
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "id": "scanned",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "scanned",
+          "quote": "Room rent is limited to 5000.",
+          "pages": [
+            ""
+          ],
+          "expected": "unverified"
+        },
+        "actual": {
+          "status": "unverified"
+        }
+      }
+    },
+    {
+      "id": "no-support",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "no-support",
+          "quote": "not found",
+          "pages": [
+            "Room rent is limited."
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "id": "hyphen-preserved",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "hyphen-preserved",
+          "quote": "Non-payable items are excluded.",
+          "pages": [
+            "Non-payable items are excluded."
+          ],
+          "expected": "verified",
+          "page": 1
+        },
+        "actual": {
+          "status": "verified",
+          "page": 1,
+          "source": "pdf"
+        }
+      }
+    },
+    {
+      "id": "empty",
+      "pass": true,
+      "details": {
+        "probe": {
+          "id": "empty",
+          "quote": "",
+          "pages": [
+            "Covered treatment"
+          ],
+          "expected": "not_found"
+        },
+        "actual": {
+          "status": "not_found"
+        }
+      }
+    },
+    {
+      "id": "synthetic-output-1",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-1",
+        "claim_amount": 10000,
+        "rejected_amount": 2000,
+        "rejection_reason": "Rs 2000 rejected due to room rent limit; Rs 8000 paid.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not establish the actual daily room rent or hospitalization duration, so the Rs 2000 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room rent and number of days charged",
+          "Insurer's detailed settlement calculation explaining the Rs 2000 deduction",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-2",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-2",
+        "claim_amount": 10000,
+        "rejected_amount": 2100,
+        "rejection_reason": "Rs 2100 rejected due to room rent limit; Rs 7900 paid.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a daily room rent limit of Rs 5000.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not establish the actual daily room charge or duration of hospitalization, so the Rs 2100 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer's settlement calculation explaining the Rs 2100 deduction",
+          "Complete policy wording specifying any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-3",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-3",
+        "claim_amount": 10000,
+        "rejected_amount": 2200,
+        "rejection_reason": "Rs 2200 rejected due to room rent limit; Rs 7800 paid.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, supporting a limit-based deduction in principle.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not provide the actual daily room charge, hospitalization duration, or deduction calculation, so the Rs 2200 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer's detailed settlement statement and calculation of the Rs 2200 deduction",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-4",
+      "pass": false,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-4",
+        "claim_amount": 10000,
+        "rejected_amount": 2300,
+        "rejection_reason": "Rejected Rs 2300 due to room rent limit.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, which supports applying a room rent cap.",
+            "supporting_quote_or_not_found": "\"Room rent limit Rs 5000 per day.\" — policy.pdf, page 1"
+          },
+          {
+            "point": "The documents do not provide the actual daily room charges, number of hospital days, or deduction calculation, so the Rs 2300 rejection cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer settlement breakdown and calculation of the Rs 2300 deduction",
+          "Complete policy wording detailing how the room rent limit is applied and any proportionate deductions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 1,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-5",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-5",
+        "claim_amount": 10000,
+        "rejected_amount": 2400,
+        "rejection_reason": "Rejected Rs 2400 due to room rent limit.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy sets a room rent limit of Rs 5000 per day, but the documents do not show the actual daily room charge or duration of hospitalization needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided. The documents do not establish whether the Rs 2400 deduction was solely excess room rent or included other charges.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "An itemized calculation is needed to assess whether the Rs 2400 deduction follows the stated room rent limit.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer's detailed settlement statement and calculation of the Rs 2400 deduction",
+          "Complete policy wording and schedule, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.96
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-6",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-6",
+        "claim_amount": 10000,
+        "rejected_amount": 2500,
+        "rejection_reason": "Rejected Rs 2500 due to room rent limit.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, so a room rent restriction is supported.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not establish the actual daily room charge or hospitalization duration, so the Rs 2500 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Claim settlement calculation explaining the Rs 2500 deduction",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.97
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-7",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-7",
+        "claim_amount": 10000,
+        "rejected_amount": 2600,
+        "rejection_reason": "Rs 2600 rejected due to room rent limit; Rs 7400 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not establish whether the actual room rent exceeded it.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The Rs 2600 deduction cannot be verified without the billed room rate, duration of stay and deduction calculation.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing room charges and billed days",
+          "Insurer's detailed settlement statement and calculation of the Rs 2600 deduction",
+          "Complete policy wording specifying any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-8",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-8",
+        "claim_amount": 10000,
+        "rejected_amount": 2700,
+        "rejection_reason": "Rs 2700 rejected due to room rent limit; Rs 7300 paid.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not show the actual room rate or number of days charged, so a breach of the limit cannot be verified.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not provide a calculation supporting the Rs 2700 deduction or a clause authorizing proportionate deductions from other hospitalization charges.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room rent and number of days charged",
+          "Insurer's detailed settlement calculation explaining the Rs 2700 deduction",
+          "Complete policy wording specifying how room rent limits and any proportionate deductions apply"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.98
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-9",
+      "pass": false,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-9",
+        "claim_amount": 10000,
+        "rejected_amount": 2800,
+        "rejection_reason": "Rejected Rs 2800 due to room rent limit; Rs 7200 paid.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy states a room rent limit of Rs 5000 per day, which supports applying a daily room rent cap.",
+            "supporting_quote_or_not_found": "\"Room rent limit Rs 5000 per day.\" (policy.pdf, page 1)"
+          },
+          {
+            "point": "The documents do not establish the actual daily room rent or length of stay, so the Rs 2800 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room rent and number of days charged",
+          "Insurer's deduction calculation and claim settlement breakdown",
+          "Complete policy wording specifying any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 1,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-10",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-10",
+        "claim_amount": 10000,
+        "rejected_amount": 2900,
+        "rejection_reason": "Partial rejection due to room rent limit; Rs 7100 paid and Rs 2900 rejected. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not show the actual daily room charge or hospitalization duration needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 2900 deduction cannot be verified without an itemized settlement calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Claim settlement calculation explaining the Rs 2900 deduction",
+          "Any additional policy terms governing room rent deductions and proportionate deductions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.97
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-11",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-11",
+        "claim_amount": 10000,
+        "rejected_amount": 3000,
+        "rejection_reason": "Rs 3000 rejected due to room rent limit; no calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a daily room rent limit, but the documents do not show the actual room charges or number of hospitalization days needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The supplied policy does not contain a clause authorizing proportionate deductions from other hospitalization expenses.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 3000 deduction cannot be verified without an itemized settlement calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and hospitalization dates",
+          "Insurer's itemized settlement and deduction calculation",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-12",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-12",
+        "claim_amount": 10000,
+        "rejected_amount": 3100,
+        "rejection_reason": "Rs 3100 rejected due to room rent limit; no calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not show the actual room rate or hospitalization duration needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The supplied policy does not state a proportionate deduction rule for other hospitalization expenses.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 3100 deduction cannot be verified without an itemized settlement calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days",
+          "Detailed claim settlement calculation explaining the Rs 3100 deduction",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.96
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-13",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-13",
+        "claim_amount": 10000,
+        "rejected_amount": 3200,
+        "rejection_reason": "Rs 3200 rejected due to the room rent limit; Rs 6800 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not establish whether the actual room charge exceeded this limit.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No policy clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 3200 deduction cannot be verified without the room charges, hospitalization duration, and deduction calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and hospitalization duration",
+          "Insurer's detailed settlement statement and deduction calculation",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.96
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-14",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-14",
+        "claim_amount": 10000,
+        "rejected_amount": 3300,
+        "rejection_reason": "Rs 3300 rejected due to the room rent limit; Rs 6700 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not show the actual daily room charge or hospitalization duration needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No policy clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 3300 deduction cannot be verified without an itemized settlement calculation and hospital bill.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer's detailed settlement calculation explaining the Rs 3300 deduction",
+          "Complete policy wording specifying any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-15",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-15",
+        "claim_amount": 10000,
+        "rejected_amount": 3400,
+        "rejection_reason": "Rs 3400 rejected due to the room rent limit; Rs 6600 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not establish whether the actual room rent exceeded it.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The Rs 3400 deduction cannot be verified without the room charges, hospitalization duration, and insurer's calculation.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Insurer's detailed settlement statement and calculation of the Rs 3400 deduction",
+          "Complete policy wording specifying how the room rent limit and any proportionate deductions apply"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-16",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-16",
+        "claim_amount": 10000,
+        "rejected_amount": 3500,
+        "rejection_reason": "Rs 3500 rejected due to the room rent limit; no calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy states a room rent limit of Rs 5000 per day, but the documents do not show the actual daily room charge or hospitalization duration needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No policy clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The correctness of the Rs 3500 deduction cannot be established without an itemized settlement calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and hospitalization dates",
+          "Insurer's detailed settlement calculation for the Rs 3500 deduction",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-17",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-17",
+        "claim_amount": 10000,
+        "rejected_amount": 3600,
+        "rejection_reason": "Rs 3600 rejected due to the room rent limit; Rs 6400 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy states a room rent limit of Rs 5000 per day, but the documents do not show the actual room rate or length of stay needed to verify the deduction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "The Rs 3600 deduction cannot be verified without an itemized settlement calculation.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing the daily room rate and number of days charged",
+          "Claim settlement calculation explaining the Rs 3600 deduction",
+          "Full policy wording specifying how the room rent limit applies and any proportionate deduction provision"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-18",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-18",
+        "claim_amount": 10000,
+        "rejected_amount": 3700,
+        "rejection_reason": "Rs 3700 rejected due to the room rent limit; Rs 6300 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not establish the actual daily room charge or length of stay, so a breach of this limit cannot be verified.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The rejection letter provides no calculation explaining the Rs 3700 deduction. Its accuracy cannot be verified from the supplied documents.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No supplied policy clause authorizes proportionate deductions from charges other than room rent.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and dates of stay",
+          "Insurer's detailed settlement statement and calculation of the Rs 3700 deduction",
+          "Complete policy wording and any applicable endorsements addressing room rent deductions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-19",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-19",
+        "claim_amount": 10000,
+        "rejected_amount": 3800,
+        "rejection_reason": "Rs 3800 rejected due to room rent limit; Rs 6200 paid. No calculation or other details provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "policy.pdf, page 1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, which supports a room rent restriction.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "The documents do not establish the actual daily room rent or duration of hospitalization, so the Rs 3800 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "not found"
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization charges is provided.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room rent and number of days charged",
+          "Insurer's detailed settlement statement and calculation of the Rs 3800 deduction",
+          "Complete policy wording, including any provisions governing proportionate deductions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    },
+    {
+      "id": "synthetic-output-20",
+      "pass": true,
+      "output": {
+        "insurer": "Example Insurance",
+        "policy_number": "SYNTH-20",
+        "claim_amount": 10000,
+        "rejected_amount": 3900,
+        "rejection_reason": "Rs 3900 rejected due to room rent limit. No calculation or other details were provided.",
+        "reason_category": "room_rent_proportionate",
+        "clauses_cited": [
+          {
+            "quote": "Room rent limit Rs 5000 per day.",
+            "page": "1"
+          }
+        ],
+        "arguments": [
+          {
+            "point": "The policy specifies a room rent limit of Rs 5000 per day, but the documents do not establish the actual daily room charge or number of hospitalization days, so the Rs 3900 deduction cannot be verified.",
+            "supporting_quote_or_not_found": "Room rent limit Rs 5000 per day."
+          },
+          {
+            "point": "No clause authorizing proportionate deductions from other hospitalization expenses is provided. Request the insurer's itemized deduction calculation and the applicable clause if such deductions were applied.",
+            "supporting_quote_or_not_found": "not found"
+          }
+        ],
+        "missing_documents": [
+          "Itemized hospital bill showing daily room charges and number of days charged",
+          "Hospitalization records showing admission and discharge dates",
+          "Insurer's itemized settlement and deduction calculation",
+          "Complete policy wording, including any proportionate deduction provisions"
+        ],
+        "case_strength": "unclear",
+        "confidence": 0.95
+      },
+      "grounded": 2,
+      "totalQuotes": 2
+    }
+  ]
+}

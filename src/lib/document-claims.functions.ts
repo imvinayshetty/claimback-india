@@ -4,8 +4,8 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { countPdfPages, documentError, MAX_FILE_BYTES, sniffType, pageLimitError, rateLimitError, validateDocuments, type DocumentKind } from "./claim-documents";
 import { analyzeDocuments } from "./analyze-claim.server";
 import { aiToLegacy, type Claim } from "./claims";
-import { analysisExpired, verifyQuotes, MAX_TOTAL_BYTES, MAX_DOCUMENTS } from "./review-rules";
-import { policyTextPages } from "./quote-verification.server";
+import { analysisExpired, analysisFailure, cleanAnalysisState, verifyQuotes, MAX_TOTAL_BYTES, MAX_DOCUMENTS } from "./review-rules";
+import { policyTextWithFallback } from "./quote-verification.server";
 import type { Json } from "@/integrations/supabase/types";
 
 async function checkRateLimit(supabase: any, userId: string) {
@@ -73,7 +73,7 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
     if (leaseError) throw new Error(leaseError.message.includes("analyses per") ? leaseError.message : "Could not start analysis.");
     const lease = leases?.[0];
     if (!lease) return { status: row.status };
-    const json = (row.analysis_json ?? {}) as Record<string, Json | undefined>;
+    const json = cleanAnalysisState((lease.analysis_json ?? {}) as Record<string, Json | undefined>);
     try {
       const key = process.env["LOVABLE_API_KEY"];
       if (!key) throw new Error("Document analysis is not configured. Please contact support.");
@@ -91,9 +91,9 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
         files.push({ kind: record.kind, name: record.storage_path.split("/").at(-1) ?? "document", blob });
       }
       validateDocuments(files.map((f) => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
-      const pages = await policyTextPages(files.find(f => f.kind === "policy")?.blob ?? new Blob());
+      const evidence = await policyTextWithFallback(files.find(f => f.kind === "policy")?.blob ?? new Blob(), key);
       const output = await analyzeDocuments(files, key);
-      const verification = verifyQuotes(output, pages);
+      const verification = verifyQuotes(output, evidence.pages, evidence.ocrPages);
       const rejected = Math.max(0, output.rejected_amount);
       const ai = { ...output, rejected_amount: rejected, claim_amount: Math.max(output.claim_amount, rejected) };
       const { claim: legacy, analysis } = aiToLegacy(ai);
@@ -105,12 +105,8 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
       if (saveError) throw new Error("Could not save your analysis.");
       return { status: "analyzed" };
     } catch (error) {
-      // Never retry or substitute models for gateway denials or refusals.
-      const status = error && typeof error === "object" && "statusCode" in error ? error.statusCode : undefined;
-      const known = error instanceof Error && /analyses per|pages\.|could not be read/.test(error.message) ? error.message : "";
-      const message = known || (status === 402 || status === 403 ? "Document analysis is unavailable because of an AI service access or credit limit. Please contact support." :
-        "We could not analyze your documents. Please check that they are readable and submit a new claim.");
-      await supabaseAdmin.from("claims").update({ status: "failed", analysis_json: { ...json, error: message, retryable: false } as Json }).eq("id", row.id).eq("user_id", context.userId).eq("analysis_lease_id", lease.analysis_lease_id ?? "");
+      const failure = analysisFailure(error);
+      await supabaseAdmin.from("claims").update({ status: "failed", analysis_json: { ...json, error: failure.message, retryable: failure.retryable } as Json }).eq("id", row.id).eq("user_id", context.userId).eq("analysis_lease_id", lease.analysis_lease_id ?? "");
       return { status: "failed" };
     }
   });
