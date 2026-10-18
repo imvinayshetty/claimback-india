@@ -11,10 +11,21 @@ export const Route = createFileRoute("/terms")({
   ] }),
   component: () => (
     <article className="container-page max-w-2xl space-y-5 py-12">
+      <p className="rounded-xl bg-warning/10 p-3 text-sm">Draft placeholder — to be reviewed before launch.</p>
       <h1 className="text-3xl">Terms of use</h1>
-      <p>ClaimBack provides general information and drafting assistance. It is not legal advice and does not create a lawyer–client relationship.</p>
-      <p>You are responsible for checking the accuracy of any letter before sending it. Outcomes depend on your insurer and policy terms; we cannot guarantee results.</p>
-      <p>We are not affiliated with IRDAI, any insurer or the Insurance Ombudsman.</p>
+      <p className="text-sm text-muted-foreground">Last updated: [DATE]</p>
+      <h2 className="text-xl">What ClaimBack is</h2>
+      <p>ClaimBack provides general information and drafting assistance. It is not legal advice and does not create a lawyer–client relationship. We are not affiliated with IRDAI, any insurer or the Insurance Ombudsman.</p>
+      <h2 className="text-xl">Your responsibilities</h2>
+      <p>You must check every fact, amount and quoted clause against your own documents before sending a letter. Only upload documents you are entitled to share.</p>
+      <h2 className="text-xl">No guarantee</h2>
+      <p>Outcomes depend on your insurer and policy terms; we cannot guarantee any result.</p>
+      <h2 className="text-xl">Payments</h2>
+      <p>Unlocking an appeal letter costs a one-time fee per claim. Refund policy: [TO BE DECIDED].</p>
+      <h2 className="text-xl">Liability</h2>
+      <p>[LIABILITY LIMITATION TO BE REVIEWED]</p>
+      <h2 className="text-xl">Governing law</h2>
+      <p>These terms are governed by the laws of India. Courts at [CITY] have jurisdiction.</p>
     </article>
   ),
 });
