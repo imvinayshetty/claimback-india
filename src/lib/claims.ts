@@ -31,8 +31,8 @@ export type Claim = {
   analysis?: Analysis | undefined;
   error?: string | undefined;
   ai?: AiAnalysis | undefined;
-  verification?: QuoteVerification;
-  retryable?: boolean;
+  verification?: QuoteVerification | undefined;
+  retryable?: boolean | undefined;
   analysisStartedAt?: string | null;
   paid?: boolean;
   paymentStatus?: string;
@@ -61,7 +61,7 @@ export function aiToLegacy(ai: AiAnalysis): { claim: Omit<Claim, "id" | "created
 }
 
 export function rowToClaim(row: Tables<"claims">): Claim {
-  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string; ai?: AiAnalysis; escalation?: Claim["escalation"]; verification?: QuoteVerification; retryable?: boolean } | null;
+  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string; ai?: AiAnalysis; escalation?: Claim["escalation"]; verification?: QuoteVerification | undefined; retryable?: boolean } | null;
   const input = json?.input;
   const reason = REASONS.find((r) => r.id === row.reason_category)?.id ?? CATEGORY_TO_REASON[row.reason_category ?? ""] ?? "other";
   return { id: row.id, createdAt: row.created_at, name: input?.name ?? "", insurer: row.insurer ?? "",

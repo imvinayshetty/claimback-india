@@ -7,5 +7,5 @@ export async function policyTextPages(blob: Blob): Promise<string[]> {
     const result = await extractText(pdf, { mergePages: false });
     return result.text;
   } catch { return []; }
-  finally { await pdf?.destroy(); }
+  finally { if (pdf && "destroy" in pdf && typeof pdf.destroy === "function") await pdf.destroy(); }
 }

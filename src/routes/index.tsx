@@ -26,10 +26,10 @@ const steps = [
 ];
 
 const faqs = [
-  ["Is this free?", "Checking your claim and drafting a letter is free while we're in early access."],
+  ["Is this free?", "Claim analysis is available in early access. Payments for the proposed ₹599 appeal-letter unlock are not open yet."],
   ["Do I need a lawyer?", "Most first appeals to an insurer and complaints to the Insurance Ombudsman don't need a lawyer. Complex cases may benefit from one."],
-  ["How long does the insurer have to reply?", "Insurers should respond to grievances within 15 days. If not, or if you're unhappy, you can approach the Ombudsman."],
-  ["Will my insurer know I used ClaimBack?", "No. The letter is sent by you, in your name."],
+  ["How long does the insurer have to reply?", "IRDAI says insurers should resolve grievances within 15 days. Ombudsman eligibility is separate: complain to the insurer first, then check the 30-day no-response rule or an unsatisfactory reply, the deadline and claim-value limit."],
+  ["Will my insurer know I used ClaimBack?", "The letter is sent by you, in your name; we do not contact your insurer."],
 ];
 
 function Index() {

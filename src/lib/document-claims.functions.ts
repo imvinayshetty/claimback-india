@@ -65,7 +65,7 @@ export const submitDocuments = createServerFn({ method: "POST" }).middleware([re
 
 export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid(), retry: z.boolean().default(false) })).handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase.from("claims").select("*").eq("id", data.id).maybeSingle();
+    const { data: row, error } = await context.supabase.from("claims").select("*").eq("id", data.id).eq("user_id", context.userId).maybeSingle();
     if (error || !row) throw new Error("Claim not found.");
     if (row.status === "analyzed" || (row.status === "failed" && !data.retry)) return { status: row.status };
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -91,7 +91,6 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
         files.push({ kind: record.kind, name: record.storage_path.split("/").at(-1) ?? "document", blob });
       }
       validateDocuments(files.map((f) => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
-      validateDocuments(files.map(f => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
       const pages = await policyTextPages(files.find(f => f.kind === "policy")?.blob ?? new Blob());
       const output = await analyzeDocuments(files, key);
       const verification = verifyQuotes(output, pages);
@@ -119,7 +118,7 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
 export const deleteClaimDocuments = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: claim } = await context.supabase.from("claims").select("id").eq("id", data.id).maybeSingle();
+    const { data: claim } = await context.supabase.from("claims").select("id").eq("id", data.id).eq("user_id", context.userId).maybeSingle();
     if (!claim) throw new Error("Claim not found.");
     const { data: files, error } = await context.supabase.from("claim_files").select("storage_path").eq("claim_id", data.id);
     if (error) throw new Error("Could not load your documents.");
@@ -136,7 +135,7 @@ export const deleteClaimDocuments = createServerFn({ method: "POST" }).middlewar
 export const deleteClaimData = createServerFn({ method: "POST" }).middleware([requireSupabaseAuth])
   .inputValidator(z.object({ id: z.string().uuid() })).handler(async ({ data, context }) => {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data: claim } = await context.supabase.from("claims").select("id").eq("id", data.id).maybeSingle();
+    const { data: claim } = await context.supabase.from("claims").select("id").eq("id", data.id).eq("user_id", context.userId).maybeSingle();
     if (!claim) throw new Error("Claim not found.");
     const { data: files, error } = await context.supabase.from("claim_files").select("storage_path").eq("claim_id", data.id);
     if (error) throw new Error("Could not load your documents.");
@@ -157,6 +156,6 @@ export const expireClaimAnalysis = createServerFn({ method: "POST" }).middleware
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const json = (row.analysis_json ?? {}) as Record<string, Json>;
     const { data: changed } = await supabaseAdmin.from("claims").update({ status: "failed", analysis_json: { ...json, error: "The review was interrupted or took too long. You can retry with the same documents.", retryable: true } })
-      .eq("id", row.id).eq("user_id", context.userId).eq("status", "processing").select("id").maybeSingle();
+      .eq("id", row.id).eq("user_id", context.userId).eq("status", "processing").eq("analysis_lease_id", row.analysis_lease_id ?? "00000000-0000-0000-0000-000000000000").select("id").maybeSingle();
     return { expired: !!changed };
   });

@@ -151,7 +151,7 @@ function Result() {
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return <section className="card-soft p-6"><div className="mb-4 flex items-center gap-3 text-primary">{icon}<h2 className="text-xl text-foreground">{title}</h2></div>{children}</section>;
 }
-function QuoteBadge({ match }: { match?: QuoteMatch }) {
+function QuoteBadge({ match }: { match?: QuoteMatch | undefined }) {
   const verified = match?.status === "verified";
   return <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${verified ? "border-success bg-success/15" : "border-warning bg-warning/15"}`}>{verified ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}{verified ? `Verified in PDF text, page ${match.page}` : match?.status === "not_found" ? "Not found in policy text" : "Unverified — no readable text layer"}</span>;
 }
