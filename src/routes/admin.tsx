@@ -7,6 +7,7 @@ import { LETTER_PRICE_INR } from "@/lib/letter-rules";
 import { useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { useAuth, SignInRequired } from "@/components/Auth";
+import { Button } from "@/components/Button";
 import { inr, rowToClaim, REASONS } from "@/lib/claims";
 
 export const Route = createFileRoute("/admin")({
@@ -61,8 +62,9 @@ function PendingPayments() {
   const { data } = useQuery({ queryKey: ["admin-payments", user?.id], queryFn: () => load(), enabled: !!user });
   if (!data?.allowed) return null;
   async function act(id: string, approve: boolean) {
+    if (approve && !window.confirm(`I checked the bank receipt: ₹${LETTER_PRICE_INR} was received and this UTR matches this payment.`)) return;
     if (!approve && !window.confirm("Reject this payment?")) return;
-    setMsg(""); try { await review({ data: { id, approve } }); setMsg(approve ? "Approved" : "Rejected"); await qc.invalidateQueries({ queryKey: ["admin-payments"] }); }
+    setMsg(""); try { await review({ data: { id, approve, bankVerified: approve } }); setMsg(approve ? "Approved" : "Rejected"); await Promise.all([qc.invalidateQueries({ queryKey: ["admin-payments"] }), qc.invalidateQueries({ queryKey: ["admin-stats"] })]); }
     catch (e) { setMsg(e instanceof Error ? e.message : "Could not update."); }
   }
   return <section>
@@ -73,7 +75,7 @@ function PendingPayments() {
       {data.payments.map((p) => <div key={p.id} className="card-soft space-y-3 p-4">
         <div className="flex flex-wrap justify-between gap-2"><span className="font-mono text-lg font-semibold">{p.txn}</span><span className="text-sm text-muted-foreground">{p.submittedAt ? new Date(p.submittedAt).toLocaleString("en-IN") : ""}</span></div>
         <p className="text-sm text-muted-foreground">{p.email} · Claim {p.id.slice(0, 8)}</p>
-        <div className="flex gap-3"><button className="btn btn-primary" onClick={() => act(p.id, true)}>Approve</button><button className="btn btn-ghost" onClick={() => act(p.id, false)}>Reject</button></div>
+        <div className="flex gap-3"><Button className="btn btn-primary" onClick={() => act(p.id, true)}>Approve</Button><Button className="btn btn-ghost" onClick={() => act(p.id, false)}>Reject</Button></div>
       </div>)}
       {!data.payments.length && <p className="text-muted-foreground">No payments waiting.</p>}
     </div>
