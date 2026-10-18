@@ -1,4 +1,8 @@
 # ClaimBack private storage setup
+# Production login correction
+- [ ] Send login links to https://claimback-india.vercel.app/login and verify login handling.
+- [ ] Check numeric-code email support and identify any required hosted settings changes.
+
 - [x] Create claims, claim_files, admins and owner-only policies.
 - [x] Create private claim-docs bucket and add the supplied admin email.
 - [x] Connect sign-in, claims, uploads, results and admin access.
