@@ -30,6 +30,7 @@ export type Claim = {
   analysis?: Analysis | undefined;
   error?: string | undefined;
   ai?: AiAnalysis | undefined;
+  paid?: boolean;
 };
 
 export type Analysis = {
@@ -61,7 +62,7 @@ export function rowToClaim(row: Tables<"claims">): Claim {
     policyNo: input?.policyNo ?? "", claimNo: input?.claimNo ?? "", details: input?.details ?? "",
     amountClaimed: row.claim_amount, amountPaid: row.claim_amount - row.rejected_amount,
     reason, fileName: input?.fileName, letter: row.letter_text ?? undefined,
-    status: row.status, analysis: json?.analysis, error: json?.error, ai: json?.ai };
+    status: row.status, analysis: json?.analysis, error: json?.error, ai: json?.ai, paid: row.paid };
 }
 export async function getClaim(id: string) {
   const { data, error } = await supabase.from("claims").select("*").eq("id", id).maybeSingle();
