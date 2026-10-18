@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { CheckCircle2, FileText, LoaderCircle, Trash2 } from "lucide-react";
+import { AlertTriangle, CheckCircle2, FileSearch, FileText, ListChecks, LoaderCircle, Lock, MessageSquareQuote, Scale, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { deleteClaimDocuments } from "@/lib/document-claims.functions";
@@ -38,7 +38,13 @@ function DocumentDeletion({ id }: { id: string }) {
   }}><Trash2 size={18} />Delete my documents</Button>{state && <p role="status" className="mt-2 text-sm text-muted-foreground">{state}</p>}</div>;
 }
 
-const tone = { Strong: "bg-success", Fair: "bg-warning", Uncertain: "bg-muted-foreground" };
+const STRENGTH = {
+  strong: { label: "Looks contestable", note: "Your documents give solid grounds to appeal.", cls: "bg-success/15 border-success text-foreground", dot: "bg-success" },
+  moderate: { label: "Possibly contestable", note: "There are some grounds to appeal, but gaps remain.", cls: "bg-warning/15 border-warning text-foreground", dot: "bg-warning" },
+  weak: { label: "Hard to contest", note: "The documents mostly support the insurer’s decision.", cls: "bg-destructive/10 border-destructive text-foreground", dot: "bg-destructive" },
+  unclear: { label: "Unclear", note: "We couldn’t tell from these documents. More papers may help.", cls: "bg-muted border-border text-foreground", dot: "bg-muted-foreground" },
+} as const;
+const LEGACY_STRENGTH = { Strong: "strong", Fair: "moderate", Uncertain: "unclear" } as const;
 
 function Result() {
   const { id } = Route.useParams();
@@ -56,62 +62,96 @@ function Result() {
   </div>;
   if (c.status === "failed") return <div className="container-page max-w-2xl space-y-6 py-16"><h1 className="text-3xl">We couldn’t complete your review</h1><p role="alert" className="text-muted-foreground">{c.error || "Your document review failed. Please submit a new claim with readable documents."}</p><Link to="/new-claim" className="btn btn-primary">Start a new claim</Link><DocumentDeletion id={id} /></div>;
   const a = c.analysis ?? analyse(c);
+  const ai = c.ai;
+  const strength = STRENGTH[ai?.case_strength ?? LEGACY_STRENGTH[a.chance]];
+  const reasonLabel = ai ? CATEGORY_LABELS[ai.reason_category] : REASONS.find((r) => r.id === c.reason)?.label;
+  const disputed = ai ? ai.rejected_amount : Math.max(c.amountClaimed - c.amountPaid, 0);
+  const args = ai ? ai.arguments : a.points.map((point) => ({ point, supporting_quote_or_not_found: "not found" }));
+  const missing = ai ? ai.missing_documents : a.documents;
   return (
-    <div className="container-page max-w-2xl space-y-8 py-12">
+    <div className="container-page max-w-2xl space-y-6 py-12">
       <div>
-        <p className="text-sm text-muted-foreground">{c.insurer || "Your claim"} · {c.ai ? CATEGORY_LABELS[c.ai.reason_category] : REASONS.find((r) => r.id === c.reason)?.label}</p>
-        <h1 className="mt-1 text-3xl">Here's what we found</h1>
+        <p className="text-sm text-muted-foreground">{c.insurer || "Your claim"}{ai?.policy_number ? ` · Policy ${ai.policy_number}` : ""}</p>
+        <h1 className="mt-1 text-3xl">Here’s what we found</h1>
       </div>
-      <div className="card-soft p-6">
-        <div className="flex items-center gap-3">
-          <span className={`h-3 w-3 rounded-full ${tone[a.chance]}`} />
-          <span className="font-semibold">Appeal chance: {a.chance}</span>
-        </div>
-        <p className="mt-3 text-lg">{a.summary}</p>
-        {c.ai && <div className="mt-4"><p className="text-sm text-muted-foreground">How sure we are: {Math.round(c.ai.confidence * 100)}%</p>
-          <div className="mt-1 h-2 rounded-full bg-muted"><div className="h-2 rounded-full bg-primary" style={{ width: `${Math.round(c.ai.confidence * 100)}%` }} /></div></div>}
-        <p className="mt-4 text-muted-foreground">Amount in dispute: <b className="text-foreground">{inr(Math.max(c.amountClaimed - c.amountPaid, 0))}</b></p>
-      </div>
-      {c.ai ? <AiDetails ai={c.ai} /> : <>
-      <section>
-        <h2 className="text-2xl">Points to raise</h2>
-        <ul className="mt-4 space-y-3">{a.points.map((p) => <li key={p} className="flex gap-3"><CheckCircle2 className="mt-1 shrink-0 text-primary" size={20} />{p}</li>)}</ul>
+
+      <Card icon={<MessageSquareQuote size={20} />} title="What the insurer said">
+        <p className="text-sm font-medium text-primary">{reasonLabel}</p>
+        <p className="mt-2 text-lg">{ai?.rejection_reason || a.summary}</p>
+        <dl className="mt-4 grid grid-cols-2 gap-4 text-sm">
+          <div><dt className="text-muted-foreground">Claimed</dt><dd className="text-lg font-semibold">{inr(ai?.claim_amount ?? c.amountClaimed)}</dd></div>
+          <div><dt className="text-muted-foreground">Rejected or cut</dt><dd className="text-lg font-semibold">{inr(disputed)}</dd></div>
+        </dl>
+      </Card>
+
+      <section className={`rounded-2xl border-2 p-6 ${strength.cls}`} aria-label="Case strength">
+        <div className="flex items-center gap-3"><Scale size={20} /><h2 className="text-xl">Does it look contestable?</h2></div>
+        <div className="mt-4 flex items-center gap-3"><span className={`h-4 w-4 rounded-full ${strength.dot}`} /><span className="text-2xl font-semibold">{strength.label}</span></div>
+        <p className="mt-2">{strength.note}</p>
+        {ai && <div className="mt-4"><p className="text-sm text-muted-foreground">How sure we are: {Math.round(ai.confidence * 100)}%</p>
+          <div className="mt-1 h-2 rounded-full bg-background"><div className={`h-2 rounded-full ${strength.dot}`} style={{ width: `${Math.round(ai.confidence * 100)}%` }} /></div></div>}
       </section>
-      <section>
-        <h2 className="text-2xl">Documents to attach</h2>
-        <ul className="mt-4 list-disc space-y-1 pl-6">{a.documents.map((d) => <li key={d}>{d}</li>)}</ul>
-      </section></>}
-      <section className="card-soft bg-secondary p-6">
-        <h2 className="text-2xl">If the insurer doesn't help</h2>
-        <ol className="mt-4 list-decimal space-y-2 pl-6">
-          <li>Send the appeal letter to the insurer's Grievance Officer. Wait 15 days.</li>
-          <li>File a complaint on the IRDAI Bima Bharosa portal or call 155255.</li>
-          <li>Approach the Insurance Ombudsman (free, within 1 year of the insurer's final reply).</li>
+
+      <div role="note" className="flex gap-3 rounded-2xl border border-warning bg-warning/10 p-4 text-sm">
+        <AlertTriangle className="mt-0.5 shrink-0 text-warning" size={20} />
+        <p><b>Quotes marked “Unverified” must be checked against your policy.</b> They were read from your documents automatically and may contain errors. Open your policy at the page shown and confirm the wording before using it in an appeal.</p>
+      </div>
+
+      <Card icon={<FileSearch size={20} />} title="Policy clauses">
+        {ai && ai.clauses_cited.length > 0 ? <ul className="space-y-4">{ai.clauses_cited.map((cl, i) => <li key={i} className="rounded-xl bg-secondary p-4">
+          <blockquote className="border-l-4 border-primary pl-3 italic">“{cl.quote}”</blockquote>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><span className="text-muted-foreground">Page {cl.page || "not found"}</span><Unverified /></div>
+        </li>)}</ul> : <p className="text-muted-foreground">No policy clauses were found in your documents.</p>}
+      </Card>
+
+      <Card icon={<CheckCircle2 size={20} />} title="Arguments for your appeal">
+        {args.length ? <ul className="space-y-5">{args.map((p, i) => { const nf = isNotFound(p.supporting_quote_or_not_found); return <li key={i}>
+          <p className="font-medium">{i + 1}. {p.point}</p>
+          {nf ? <p className="mt-1 text-sm text-muted-foreground">No supporting policy clause found</p> :
+            <div className="mt-2"><blockquote className="border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">“{p.supporting_quote_or_not_found}”</blockquote><div className="mt-1"><Unverified /></div></div>}
+        </li>; })}</ul> : <p className="text-muted-foreground">No appeal arguments were found in your documents.</p>}
+      </Card>
+
+      <Card icon={<ListChecks size={20} />} title="Missing documents">
+        {missing.length ? <ul className="list-disc space-y-1 pl-6">{missing.map((d) => <li key={d}>{d}</li>)}</ul> : <p className="text-muted-foreground">Nothing obvious is missing.</p>}
+      </Card>
+
+      <Card icon={<Scale size={20} />} title="Next steps">
+        <ol className="list-decimal space-y-2 pl-6">
+          {missing.length > 0 && <li>Gather the missing documents listed above.</li>}
+          <li>Send the appeal letter to the insurer’s Grievance Officer. Wait 15 days for a reply.</li>
+          <li>If unhappy, complain on the IRDAI Bima Bharosa portal or call 155255.</li>
+          <li>Approach the Insurance Ombudsman — free, within 1 year of the insurer’s final reply.</li>
         </ol>
-      </section>
-      <Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><FileText size={20} />Get my appeal letter</Link>
+      </Card>
+
+      <LetterPreview id={id} text={c.letter ?? ""} paid={c.paid ?? false} />
       <Disclaimer />
       <DocumentDeletion id={id} />
     </div>
   );
 }
 
-const isNotFound = (s: string) => s.trim().toLowerCase() === "not found" || !s.trim();
-function AiDetails({ ai }: { ai: NonNullable<Claim["ai"]> }) {
-  return <>
-    <section>
-      <h2 className="text-2xl">Points to raise</h2>
-      {ai.arguments.length === 0 ? <p className="mt-4 text-muted-foreground">No appeal points were found in your documents.</p> :
-      <ul className="mt-4 space-y-4">{ai.arguments.map((p, i) => <li key={i} className="flex gap-3"><CheckCircle2 className="mt-1 shrink-0 text-primary" size={20} /><div><p>{p.point}</p>
-        {isNotFound(p.supporting_quote_or_not_found) ? <p className="mt-1 text-sm text-muted-foreground">No supporting policy clause found</p> : <blockquote className="mt-1 border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">“{p.supporting_quote_or_not_found}”</blockquote>}</div></li>)}</ul>}
-    </section>
-    {ai.clauses_cited.length > 0 && <section>
-      <h2 className="text-2xl">Policy clauses quoted</h2>
-      <ul className="mt-4 space-y-3">{ai.clauses_cited.map((c, i) => <li key={i} className="card-soft p-4"><p className="italic">“{c.quote}”</p><p className="mt-2 text-sm text-muted-foreground">Page {c.page || "not found"}</p></li>)}</ul>
-    </section>}
-    {ai.missing_documents.length > 0 && <section>
-      <h2 className="text-2xl">Documents you may still need</h2>
-      <ul className="mt-4 list-disc space-y-1 pl-6">{ai.missing_documents.map((d) => <li key={d}>{d}</li>)}</ul>
-    </section>}
-  </>;
+function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+  return <section className="card-soft p-6"><div className="mb-4 flex items-center gap-3 text-primary">{icon}<h2 className="text-xl text-foreground">{title}</h2></div>{children}</section>;
 }
+function Unverified() {
+  return <span className="inline-flex items-center gap-1 rounded-full border border-warning bg-warning/15 px-2 py-0.5 text-xs font-medium"><AlertTriangle size={12} />Unverified</span>;
+}
+function LetterPreview({ id, text, paid }: { id: string; text: string; paid: boolean }) {
+  const preview = text.split("\n").slice(0, 14).join("\n");
+  return <section className="card-soft overflow-hidden" aria-label="Appeal letter preview">
+    <div className="flex items-center gap-3 p-6 pb-0 text-primary"><FileText size={20} /><h2 className="text-xl text-foreground">Your appeal letter</h2></div>
+    <div className="relative mt-4 px-6">
+      <pre aria-hidden={!paid} className={`whitespace-pre-wrap font-sans text-sm ${paid ? "" : "max-h-56 select-none overflow-hidden blur-[3px]"}`}>{paid ? text : preview}</pre>
+      {!paid && <div className="absolute inset-0 bg-gradient-to-b from-transparent via-card/70 to-card" />}
+    </div>
+    <div className="p-6 pt-4">
+      {paid ? <Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><FileText size={20} />Open appeal letter</Link> :
+        <><Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><Lock size={18} />Unlock appeal letter</Link>
+        <p className="mt-2 text-center text-sm text-muted-foreground">Ready to send to your insurer’s Grievance Officer.</p></>}
+    </div>
+  </section>;
+}
+
+const isNotFound = (s: string) => s.trim().toLowerCase() === "not found" || !s.trim();
