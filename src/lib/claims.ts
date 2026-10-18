@@ -23,8 +23,8 @@ export type Claim = {
   amountPaid: number;
   reason: Reason;
   details: string;
-  fileName?: string;
-  letter?: string;
+  fileName?: string | undefined;
+  letter?: string | undefined;
 };
 
 export type Analysis = {
