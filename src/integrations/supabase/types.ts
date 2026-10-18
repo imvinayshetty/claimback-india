@@ -88,6 +88,8 @@ export type Database = {
       claims: {
         Row: {
           analysis_json: Json | null
+          analysis_lease_id: string | null
+          analysis_started_at: string | null
           analyzed_at: string | null
           case_strength: string | null
           claim_amount: number
@@ -108,6 +110,8 @@ export type Database = {
         }
         Insert: {
           analysis_json?: Json | null
+          analysis_lease_id?: string | null
+          analysis_started_at?: string | null
           analyzed_at?: string | null
           case_strength?: string | null
           claim_amount?: number
@@ -128,6 +132,8 @@ export type Database = {
         }
         Update: {
           analysis_json?: Json | null
+          analysis_lease_id?: string | null
+          analysis_started_at?: string | null
           analyzed_at?: string | null
           case_strength?: string | null
           claim_amount?: number
@@ -148,12 +154,64 @@ export type Database = {
         }
         Relationships: []
       }
+      submission_runs: {
+        Row: {
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      refund_letter_slot: {
+        Args: { p_id: string; p_user: string }
+        Returns: undefined
+      }
+      reserve_claim_analysis: {
+        Args: { p_id: string; p_retry?: boolean; p_user: string }
+        Returns: {
+          analysis_json: Json | null
+          analysis_lease_id: string | null
+          analysis_started_at: string | null
+          analyzed_at: string | null
+          case_strength: string | null
+          claim_amount: number
+          created_at: string
+          files_purged_at: string | null
+          id: string
+          insurer: string | null
+          letter_generations: number
+          letter_text: string | null
+          paid: boolean
+          payment_status: string
+          payment_submitted_at: string | null
+          payment_txn_id: string | null
+          reason_category: string | null
+          rejected_amount: number
+          status: string
+          user_id: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "claims"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
     }
     Enums: {
       [_ in never]: never

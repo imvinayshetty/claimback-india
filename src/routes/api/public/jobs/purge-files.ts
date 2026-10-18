@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { authenticateCronRequest } from "@/integrations/supabase/cron-auth";
 
-const RETENTION_DAYS = 30;
+import { RETENTION_DAYS } from "@/lib/review-rules";
 
 export const Route = createFileRoute("/api/public/jobs/purge-files")({
   server: {
@@ -12,18 +12,20 @@ export const Route = createFileRoute("/api/public/jobs/purge-files")({
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const cutoff = new Date(Date.now() - RETENTION_DAYS * 86400000).toISOString();
         const { data: due, error } = await supabaseAdmin.from("claims").select("id")
-          .lt("analyzed_at", cutoff).is("files_purged_at", null).limit(200);
+          .or(`analyzed_at.lt.${cutoff},and(analyzed_at.is.null,created_at.lt.${cutoff})`).is("files_purged_at", null).limit(200);
         if (error) return Response.json({ error: "lookup failed" }, { status: 500 });
         let purged = 0;
         for (const c of due ?? []) {
-          const { data: files } = await supabaseAdmin.from("claim_files").select("storage_path").eq("claim_id", c.id);
+          const { data: files, error: readError } = await supabaseAdmin.from("claim_files").select("storage_path").eq("claim_id", c.id);
+          if (readError) continue;
           if (files?.length) {
             const { error: rm } = await supabaseAdmin.storage.from("claim-docs").remove(files.map((f) => f.storage_path));
             if (rm) continue;
-            await supabaseAdmin.from("claim_files").delete().eq("claim_id", c.id);
+            const { error: recordError } = await supabaseAdmin.from("claim_files").delete().eq("claim_id", c.id);
+            if (recordError) continue;
           }
-          await supabaseAdmin.from("claims").update({ files_purged_at: new Date().toISOString() }).eq("id", c.id);
-          purged++;
+          const { error: markError } = await supabaseAdmin.from("claims").update({ files_purged_at: new Date().toISOString() }).eq("id", c.id);
+          if (!markError) purged++;
         }
         return Response.json({ purged });
       },

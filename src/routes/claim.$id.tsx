@@ -3,10 +3,12 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, CheckCircle2, FileSearch, FileText, ListChecks, LoaderCircle, Lock, MessageSquareQuote, Scale, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { deleteClaimData, deleteClaimDocuments } from "@/lib/document-claims.functions";
+import { deleteClaimData, deleteClaimDocuments, analyzeClaim, expireClaimAnalysis } from "@/lib/document-claims.functions";
+import { analysisExpired, type QuoteMatch } from "@/lib/review-rules";
+import { ESCALATION_DEFAULT, ESCALATION_VERIFIED_ON } from "@/lib/letter-rules";
 import { shouldPollClaim } from "@/lib/claim-documents";
 import { Button } from "@/components/Button";
-import { analyse, CATEGORY_LABELS, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
+import { CATEGORY_LABELS, getClaim, inr, REASONS, type Claim } from "@/lib/claims";
 import { Disclaimer } from "@/components/Disclaimer";
 import { useAuth, SignInRequired } from "@/components/Auth";
 
@@ -24,7 +26,8 @@ export const Route = createFileRoute("/claim/$id")({
 
 export function useClaim(id: string) {
   const { user } = useAuth();
-  return useQuery({ queryKey: ["claim", user?.id, id], queryFn: () => getClaim(id), enabled: !!user,
+  const expire = useServerFn(expireClaimAnalysis);
+  return useQuery({ queryKey: ["claim", user?.id, id], queryFn: async () => { let claim = await getClaim(id); if (claim && shouldPollClaim(claim.status) && analysisExpired(claim.createdAt, claim.analysisStartedAt)) { await expire({ data: { id } }); claim = await getClaim(id); } return claim; }, enabled: !!user,
     refetchInterval: (query) => shouldPollClaim(query.state.data?.status) ? 2000 : false,
     refetchIntervalInBackground: true });
 }
@@ -37,7 +40,7 @@ function DocumentDeletion({ id }: { id: string }) {
   const [state, setState] = useState("");
   const busy = state === "Deleting…";
   return <div className="space-y-3 border-t pt-6">
-    <p className="text-sm text-muted-foreground">Uploaded documents are deleted automatically 30 days after your analysis.</p>
+    <p className="text-sm text-muted-foreground">Uploaded documents are deleted automatically after 30 days: from analysis completion, or upload if no analysis completes.</p>
     <div className="flex flex-wrap gap-3">
       <Button className="btn btn-ghost" disabled={busy || state === "Documents deleted"} onClick={async () => {
         if (!window.confirm("Delete all uploaded documents for this claim? Your analysis and letter will remain.")) return;
@@ -76,8 +79,8 @@ function Result() {
     <ol className="space-y-4"><li className="flex items-center gap-3"><CheckCircle2 className="text-primary" size={20} />Documents received</li><li className="flex items-center gap-3"><LoaderCircle className="animate-spin text-primary motion-reduce:animate-none" size={20} />Analyzing your claim</li><li className="text-muted-foreground">Appeal points and letter next</li></ol>
     <DocumentDeletion id={id} />
   </div>;
-  if (c.status === "failed") return <div className="container-page max-w-2xl space-y-6 py-16"><h1 className="text-3xl">We couldn’t complete your review</h1><p role="alert" className="text-muted-foreground">{c.error || "Your document review failed. Please submit a new claim with readable documents."}</p><Link to="/new-claim" className="btn btn-primary">Start a new claim</Link><DocumentDeletion id={id} /></div>;
-  const a = c.analysis ?? analyse(c);
+  if (c.status === "failed") return <div className="container-page max-w-2xl space-y-6 py-16"><h1 className="text-3xl">We couldn’t complete your review</h1><p role="alert" className="text-muted-foreground">{c.error || "Your document review failed. Please submit a new claim with readable documents."}</p><Link to="/new-claim" className="btn btn-primary">Start a new claim</Link>{c.retryable && <RetryAnalysis id={id} />}<DocumentDeletion id={id} /></div>;
+  const a = c.analysis ?? { chance: "Uncertain" as const, summary: "No saved analysis is available.", points: [], documents: [] };
   const ai = c.ai;
   const strength = STRENGTH[ai?.case_strength ?? LEGACY_STRENGTH[a.chance]];
   const reasonLabel = ai ? CATEGORY_LABELS[ai.reason_category] : REASONS.find((r) => r.id === c.reason)?.label;
@@ -111,13 +114,13 @@ function Result() {
 
       <div role="note" className="flex gap-3 rounded-2xl border border-warning bg-warning/10 p-4 text-sm">
         <AlertTriangle className="mt-0.5 shrink-0 text-warning" size={20} />
-        <p><b>Quotes marked “Unverified” must be checked against your policy.</b> They were read from your documents automatically and may contain errors. Open your policy at the page shown and confirm the wording before using it in an appeal.</p>
+        <p><b>Quotes not verified in the PDF text must be checked against your policy.</b> Text matching confirms wording, not legal meaning; all quotes may need your review. Unsupported quotes are excluded from generated letters. Open your policy at the page shown and confirm the wording before using it in an appeal.</p>
       </div>
 
       <Card icon={<FileSearch size={20} />} title="Policy clauses">
         {ai && ai.clauses_cited.length > 0 ? <ul className="space-y-4">{ai.clauses_cited.map((cl, i) => <li key={i} className="rounded-xl bg-secondary p-4">
           <blockquote className="border-l-4 border-primary pl-3 italic">“{cl.quote}”</blockquote>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><span className="text-muted-foreground">Page {cl.page || "not found"}</span><Unverified /></div>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><span className="text-muted-foreground">Page {cl.page || "not found"}</span><QuoteBadge match={c.verification?.clauses[i]} /></div>
         </li>)}</ul> : <p className="text-muted-foreground">No policy clauses were found in your documents.</p>}
       </Card>
 
@@ -125,7 +128,7 @@ function Result() {
         {args.length ? <ul className="space-y-5">{args.map((p, i) => { const nf = isNotFound(p.supporting_quote_or_not_found); return <li key={i}>
           <p className="font-medium">{i + 1}. {p.point}</p>
           {nf ? <p className="mt-1 text-sm text-muted-foreground">No supporting policy clause found</p> :
-            <div className="mt-2"><blockquote className="border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">“{p.supporting_quote_or_not_found}”</blockquote><div className="mt-1"><Unverified /></div></div>}
+            <div className="mt-2"><blockquote className="border-l-2 border-primary pl-3 text-sm italic text-muted-foreground">“{p.supporting_quote_or_not_found}”</blockquote><div className="mt-1"><QuoteBadge match={c.verification?.arguments[i]} /></div></div>}
         </li>; })}</ul> : <p className="text-muted-foreground">No appeal arguments were found in your documents.</p>}
       </Card>
 
@@ -134,12 +137,8 @@ function Result() {
       </Card>
 
       <Card icon={<Scale size={20} />} title="Next steps">
-        <ol className="list-decimal space-y-2 pl-6">
-          {missing.length > 0 && <li>Gather the missing documents listed above.</li>}
-          <li>Send the appeal letter to the insurer’s Grievance Officer. Wait 15 days for a reply.</li>
-          <li>If unhappy, complain on the IRDAI Bima Bharosa portal or call 155255.</li>
-          <li>Approach the Insurance Ombudsman — free, within 1 year of the insurer’s final reply.</li>
-        </ol>
+        <ol className="list-decimal space-y-3 pl-6">{ESCALATION_DEFAULT.map(step => <li key={step.step}><b>{step.step}</b><p>{step.when}. {step.how}</p></li>)}</ol>
+        <p className="mt-4 text-xs text-muted-foreground">Official guidance checked {ESCALATION_VERIFIED_ON}. Eligibility and deadlines depend on your case.</p>
       </Card>
 
       <LetterPreview id={id} text={c.letter ?? ""} paid={c.paid ?? false} />
@@ -152,11 +151,19 @@ function Result() {
 function Card({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
   return <section className="card-soft p-6"><div className="mb-4 flex items-center gap-3 text-primary">{icon}<h2 className="text-xl text-foreground">{title}</h2></div>{children}</section>;
 }
-function Unverified() {
-  return <span className="inline-flex items-center gap-1 rounded-full border border-warning bg-warning/15 px-2 py-0.5 text-xs font-medium"><AlertTriangle size={12} />Unverified</span>;
+function QuoteBadge({ match }: { match?: QuoteMatch | undefined }) {
+  const verified = match?.status === "verified";
+  return <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium ${verified ? "border-success bg-success/15" : "border-warning bg-warning/15"}`}>{verified ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}{verified ? `Verified in PDF text, page ${match.page}` : match?.status === "not_found" ? "Not found in policy text" : "Unverified — no readable text layer"}</span>;
+}
+function RetryAnalysis({ id }: { id: string }) {
+  const retry = useServerFn(analyzeClaim);
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  return <div><Button disabled={busy} onClick={async () => { setBusy(true); setError(""); try { const work = retry({ data: { id, retry: true } }); window.setTimeout(() => { void qc.invalidateQueries({ queryKey: ["claim"] }); }, 1000); await work; await qc.invalidateQueries({ queryKey: ["claim"] }); } catch (e) { setError(e instanceof Error ? e.message : "Could not retry."); } finally { setBusy(false); } }}><LoaderCircle size={18} className={busy ? "animate-spin" : ""} />Retry document review</Button>{error && <p role="alert">{error}</p>}</div>;
 }
 function LetterPreview({ id, text, paid }: { id: string; text: string; paid: boolean }) {
-  const preview = text.split("\n").slice(0, 14).join("\n");
+  const preview = "To,\nThe Grievance Redressal Officer\n[INSURER]\n\nSubject: Request for review of claim [CLAIM NUMBER]\n\nDear Sir/Madam,\n\nGrounds for review\n1. [VERIFIED GROUNDS FROM YOUR DOCUMENTS]\n\nRequested resolution\n[REQUESTED RESOLUTION]\n\nYours faithfully,\n[POLICYHOLDER NAME]";
   return <section className="card-soft overflow-hidden" aria-label="Appeal letter preview">
     <div className="flex items-center gap-3 p-6 pb-0 text-primary"><FileText size={20} /><h2 className="text-xl text-foreground">Your appeal letter</h2></div>
     <div className="relative mt-4 px-6">

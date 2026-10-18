@@ -15,6 +15,10 @@
 - Document paths use user UUID/claim UUID/file to align private Storage policies with claim ownership.
 - Document submission and analysis use authenticated TanStack server functions, not separate Edge Functions, to preserve the supported runtime and validate ownership.
 - Validate document requirements and file sizes through shared rules on both client and server; a private bucket limit adds storage enforcement.
-- Persist processing status and a per-claim analysis lease before document analysis; results poll durable status and render saved analysis, avoiding duplicate runs.
+- Reserve analysis with a database-atomic timed lease and run counter; stale results cannot overwrite a replacement lease, and results reads expire interrupted work.
 - Analysis rate limits are counted from the analysis_runs table and PDF page limits use pdf-lib in shared rules, so client and server enforce the same values.
-- Payment and letter-quota columns on claims are writable only by the server (admin client) via DB triggers; owners cannot self-approve payment.
+- All claim/file mutations and uploads use privileged clients only after validated ownership; authenticated clients retain owner-scoped reads but no direct writes, preventing workflow and retention tampering.
+- Exact PDF text matching is server-only; only verified quotations enter letter drafting, while scanned documents remain unverified.
+- Unpaid claims contain no letter text; payment availability is a server-enforced launch gate, and transaction references are uniquely indexed.
+- Submission quotas are database-atomic and retained separately from deletable claims; failed letter-generation reservations are refunded atomically.
+- Retention uses analysis completion or upload time when analysis never completes, including failed claims; keep the managed daily cleanup schedule.

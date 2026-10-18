@@ -1,0 +1,18 @@
+// @vitest-environment node
+import { describe, it, expect } from 'vitest';
+import { PDFDocument, StandardFonts } from 'pdf-lib';
+import { matchQuote, verifyQuotes, groundedAnalysis, analysisExpired, retentionDue } from '@/lib/review-rules';
+import { validateDocuments, analysisOutput } from '@/lib/claim-documents';
+import { policyTextPages } from '@/lib/quote-verification.server';
+const ai = analysisOutput.parse({ insurer: 'Test', policy_number: '', claim_amount: 100, rejected_amount: 50, rejection_reason: 'test', reason_category: 'other', case_strength: 'unclear', confidence: 0.5, clauses_cited: [{ quote: 'Room rent is limited to 5000.', page: '1' }, { quote: 'Invented clause', page: '1' }], arguments: [{ point: 'Review rent', supporting_quote_or_not_found: 'Invented clause' }], missing_documents: [] });
+describe('Review safeguards', () => {
+  it('verifies exact wording on the claimed page, never another page', () => { expect(matchQuote('Covered treatment', ['Covered treatment'], '1')).toEqual({ status: 'verified', page: 1 }); expect(matchQuote('Covered treatment', ['Other', 'Covered treatment'], '1').status).toBe('not_found'); });
+  it('keeps scanned documents unverified', () => expect(matchQuote('Covered treatment', ['']).status).toBe('unverified'));
+  it('excludes every unsupported clause from letter input', () => { const out = groundedAnalysis(ai, verifyQuotes(ai, ['Room rent is limited to 5000.'])); expect(out.clauses_cited).toHaveLength(1); expect(out.arguments[0]?.supporting_quote_or_not_found).toBe('not found'); expect(groundedAnalysis(ai).clauses_cited).toEqual([]); });
+  it('extracts a real PDF text layer for verification', async () => { const pdf = await PDFDocument.create(); const font = await pdf.embedFont(StandardFonts.Helvetica); pdf.addPage().drawText('Room rent is limited to 5000.', { font }); const bytes = await pdf.save(); const pages = await policyTextPages(new Blob([new Uint8Array(bytes)], { type: 'application/pdf' })); expect(matchQuote(ai.clauses_cited[0]?.quote ?? '', pages, '1').status).toBe('verified'); });
+  it('expires an interrupted review at five minutes', () => { const start = '2026-10-18T00:00:00Z'; expect(analysisExpired(start, start, Date.parse(start) + 299999)).toBe(false); expect(analysisExpired(start, start, Date.parse(start) + 300000)).toBe(true); });
+  it('purges failed upload files after 30 days', () => { const start = '2026-09-18T00:00:00Z'; expect(retentionDue(start, null, Date.parse(start) + 30 * 86400000)).toBe(true); expect(retentionDue(start, null, Date.parse(start) + 29 * 86400000)).toBe(false); });
+  it('measures analyzed retention from completion', () => expect(retentionDue('2026-09-01', '2026-10-01', Date.parse('2026-10-18'))).toBe(false));
+  it('limits aggregate uploads to 20 MB', () => { const docs = [{ kind: 'policy' as const, size: 10 * 1024 * 1024, type: 'application/pdf' }, { kind: 'rejection_letter' as const, size: 10 * 1024 * 1024, type: 'application/pdf' }]; expect(() => validateDocuments(docs, true)).not.toThrow(); expect(() => validateDocuments([...docs, { kind: 'other', size: 1, type: 'application/pdf' }], true)).toThrow('20 MB'); });
+  it('limits document count to six', () => { const docs = [{ kind: 'policy' as const, size: 1, type: 'application/pdf' }, { kind: 'rejection_letter' as const, size: 1, type: 'application/pdf' }, ...Array.from({ length: 5 }, () => ({ kind: 'other' as const, size: 1, type: 'application/pdf' }))]; expect(() => validateDocuments(docs, true)).toThrow('6'); });
+});

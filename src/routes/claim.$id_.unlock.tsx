@@ -8,6 +8,7 @@ import { useAuth, SignInRequired } from "@/components/Auth";
 import { Button } from "@/components/Button";
 import { submitPayment } from "@/lib/letter.functions";
 import { LETTER_PRICE_INR, txnId } from "@/lib/letter-rules";
+import { PAYMENTS_READY } from "@/lib/review-rules";
 import { inr } from "@/lib/claims";
 
 const qrModules = import.meta.glob("@/assets/upi-qr.*", { eager: true, import: "default" }) as Record<string, string>;
@@ -39,6 +40,7 @@ function Unlock() {
   if (!user) return <SignInRequired />;
   if (!claim) return <div className="container-page py-16">Claim not found.</div>;
   if (claim.paid) return <div className="container-page max-w-xl space-y-6 py-16"><CheckCircle2 className="text-success" size={40} /><h1 className="text-3xl">Your letter is unlocked</h1><Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary">Open appeal letter</Link></div>;
+  if (!PAYMENTS_READY) return <div className="container-page max-w-xl space-y-6 py-16"><h1 className="text-3xl">Payments aren’t open yet</h1><p className="text-muted-foreground">Please do not send money. Payment details and reviewed terms will be available before payments open.</p><Link to="/claim/$id" params={{ id }} className="btn btn-ghost">Back to my analysis</Link></div>;
   if (claim.paymentStatus === "pending") return <div className="container-page max-w-xl space-y-6 py-16"><Clock className="text-primary" size={40} /><h1 className="text-3xl">We’re checking your payment</h1><p className="text-lg text-muted-foreground">This usually takes a few hours. Come back to your claim page; the letter unlocks as soon as it’s confirmed.</p><Link to="/claim/$id" params={{ id }} className="btn btn-ghost">Back to my claim</Link></div>;
   async function send(e: React.FormEvent) {
     e.preventDefault(); setError("");
