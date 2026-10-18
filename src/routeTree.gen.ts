@@ -10,33 +10,128 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdminRouteImport } from './routes/admin'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as NewClaimRouteImport } from './routes/new-claim'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ClaimIdRouteImport } from './routes/claim.$id'
+import { Route as ClaimIdLetterRouteImport } from './routes/claim.$id_.letter'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewClaimRoute = NewClaimRouteImport.update({
+  id: '/new-claim',
+  path: '/new-claim',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaimIdRoute = ClaimIdRouteImport.update({
+  id: '/claim/$id',
+  path: '/claim/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaimIdLetterRoute = ClaimIdLetterRouteImport.update({
+  id: '/claim/$id_/letter',
+  path: '/claim/$id/letter',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
+  '/new-claim': typeof NewClaimRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/claim/$id': typeof ClaimIdRoute
+  '/claim/$id/letter': typeof ClaimIdLetterRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
+  '/new-claim': typeof NewClaimRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/claim/$id': typeof ClaimIdRoute
+  '/claim/$id/letter': typeof ClaimIdLetterRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
+  '/login': typeof LoginRoute
+  '/new-claim': typeof NewClaimRoute
+  '/privacy': typeof PrivacyRoute
+  '/terms': typeof TermsRoute
+  '/claim/$id': typeof ClaimIdRoute
+  '/claim/$id_/letter': typeof ClaimIdLetterRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/new-claim'
+    | '/privacy'
+    | '/terms'
+    | '/claim/$id'
+    | '/claim/$id/letter'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/new-claim'
+    | '/privacy'
+    | '/terms'
+    | '/claim/$id'
+    | '/claim/$id/letter'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin'
+    | '/login'
+    | '/new-claim'
+    | '/privacy'
+    | '/terms'
+    | '/claim/$id'
+    | '/claim/$id_/letter'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
+  LoginRoute: typeof LoginRoute
+  NewClaimRoute: typeof NewClaimRoute
+  PrivacyRoute: typeof PrivacyRoute
+  TermsRoute: typeof TermsRoute
+  ClaimIdRoute: typeof ClaimIdRoute
+  ClaimIdLetterRoute: typeof ClaimIdLetterRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +143,67 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/new-claim': {
+      id: '/new-claim'
+      path: '/new-claim'
+      fullPath: '/new-claim'
+      preLoaderRoute: typeof NewClaimRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claim/$id': {
+      id: '/claim/$id'
+      path: '/claim/$id'
+      fullPath: '/claim/$id'
+      preLoaderRoute: typeof ClaimIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claim/$id_/letter': {
+      id: '/claim/$id_/letter'
+      path: '/claim/$id/letter'
+      fullPath: '/claim/$id/letter'
+      preLoaderRoute: typeof ClaimIdLetterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
+  LoginRoute: LoginRoute,
+  NewClaimRoute: NewClaimRoute,
+  PrivacyRoute: PrivacyRoute,
+  TermsRoute: TermsRoute,
+  ClaimIdRoute: ClaimIdRoute,
+  ClaimIdLetterRoute: ClaimIdLetterRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
