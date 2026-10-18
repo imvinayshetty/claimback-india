@@ -31,6 +31,8 @@ export type Claim = {
   error?: string | undefined;
   ai?: AiAnalysis | undefined;
   paid?: boolean;
+  paymentStatus?: string;
+  escalation?: { step: string; when: string; how: string }[] | undefined;
 };
 
 export type Analysis = {
@@ -55,14 +57,14 @@ export function aiToLegacy(ai: AiAnalysis): { claim: Omit<Claim, "id" | "created
 }
 
 export function rowToClaim(row: Tables<"claims">): Claim {
-  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string; ai?: AiAnalysis } | null;
+  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string; ai?: AiAnalysis; escalation?: Claim["escalation"] } | null;
   const input = json?.input;
   const reason = REASONS.find((r) => r.id === row.reason_category)?.id ?? CATEGORY_TO_REASON[row.reason_category ?? ""] ?? "other";
   return { id: row.id, createdAt: row.created_at, name: input?.name ?? "", insurer: row.insurer ?? "",
     policyNo: input?.policyNo ?? "", claimNo: input?.claimNo ?? "", details: input?.details ?? "",
     amountClaimed: row.claim_amount, amountPaid: row.claim_amount - row.rejected_amount,
     reason, fileName: input?.fileName, letter: row.letter_text ?? undefined,
-    status: row.status, analysis: json?.analysis, error: json?.error, ai: json?.ai, paid: row.paid };
+    status: row.status, analysis: json?.analysis, error: json?.error, ai: json?.ai, paid: row.paid, paymentStatus: row.payment_status, escalation: json?.escalation };
 }
 export async function getClaim(id: string) {
   const { data, error } = await supabase.from("claims").select("*").eq("id", id).maybeSingle();

@@ -148,7 +148,7 @@ function LetterPreview({ id, text, paid }: { id: string; text: string; paid: boo
     </div>
     <div className="p-6 pt-4">
       {paid ? <Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><FileText size={20} />Open appeal letter</Link> :
-        <><Link to="/claim/$id/letter" params={{ id }} className="btn btn-primary w-full"><Lock size={18} />Unlock appeal letter</Link>
+        <><Link to="/claim/$id/unlock" params={{ id }} className="btn btn-primary w-full"><Lock size={18} />Unlock appeal letter</Link>
         <p className="mt-2 text-center text-sm text-muted-foreground">Ready to send to your insurer’s Grievance Officer.</p></>}
     </div>
   </section>;
