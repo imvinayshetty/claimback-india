@@ -84,9 +84,8 @@ export const analyzeClaim = createServerFn({ method: "POST" }).middleware([requi
       }
       validateDocuments(files.map((f) => ({ kind: f.kind as DocumentKind, size: f.blob.size, type: f.blob.type })), true);
       const output = await analyzeDocuments(files, key);
-      const claimAmount = Math.max(0, output.claim_amount);
-      const rejected = Math.min(claimAmount || Infinity, Math.max(0, output.rejected_amount));
-      const ai = { ...output, claim_amount: claimAmount, rejected_amount: Number.isFinite(rejected) ? rejected : 0 };
+      const rejected = Math.max(0, output.rejected_amount);
+      const ai = { ...output, rejected_amount: rejected, claim_amount: Math.max(output.claim_amount, rejected) };
       const { claim: legacy, analysis } = aiToLegacy(ai);
       const claim: Claim = { ...legacy, id: row.id, createdAt: row.created_at };
       const { error: saveError } = await context.supabase.from("claims").update({ status: "analyzed", insurer: ai.insurer || null,

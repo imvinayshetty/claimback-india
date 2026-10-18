@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import type { Tables } from "@/integrations/supabase/types";
+import type { AiAnalysis } from "./claim-documents";
 
 export type Reason = "ped" | "room_rent" | "non_payable" | "waiting" | "documents" | "other";
 
@@ -28,6 +29,7 @@ export type Claim = {
   status?: string;
   analysis?: Analysis | undefined;
   error?: string | undefined;
+  ai?: AiAnalysis | undefined;
 };
 
 export type Analysis = {
@@ -37,15 +39,29 @@ export type Analysis = {
   documents: string[];
 };
 
+const CATEGORY_TO_REASON: Record<string, Reason> = { pre_existing: "ped", non_disclosure: "ped", waiting_period: "waiting",
+  room_rent_proportionate: "room_rent", non_payable_items: "non_payable", documentation: "documents" };
+export const CATEGORY_LABELS: Record<string, string> = { pre_existing: "Pre-existing disease", non_disclosure: "Non-disclosure",
+  waiting_period: "Waiting period", room_rent_proportionate: "Room rent / proportionate deduction", non_payable_items: "Non-payable items",
+  not_medically_necessary: "Not medically necessary", documentation: "Missing documents", other: "Other reason" };
+const STRENGTH_TO_CHANCE = { strong: "Strong", moderate: "Fair", weak: "Uncertain", unclear: "Uncertain" } as const;
+
+export function aiToLegacy(ai: AiAnalysis): { claim: Omit<Claim, "id" | "createdAt">; analysis: Analysis } {
+  const claim = { name: "", insurer: ai.insurer, policyNo: ai.policy_number, claimNo: "", amountClaimed: ai.claim_amount,
+    amountPaid: ai.claim_amount - ai.rejected_amount, reason: CATEGORY_TO_REASON[ai.reason_category] ?? "other", details: "" };
+  const points = ai.arguments.map((a) => a.supporting_quote_or_not_found.trim().toLowerCase() === "not found" ? a.point : `${a.point} (Policy: "${a.supporting_quote_or_not_found}")`);
+  return { claim, analysis: { chance: STRENGTH_TO_CHANCE[ai.case_strength], summary: ai.rejection_reason, points, documents: ai.missing_documents } };
+}
+
 export function rowToClaim(row: Tables<"claims">): Claim {
-  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string } | null;
+  const json = row.analysis_json as { input?: Partial<Claim>; analysis?: Analysis; error?: string; ai?: AiAnalysis } | null;
   const input = json?.input;
-  const reason = REASONS.find((r) => r.id === row.reason_category)?.id ?? "other";
+  const reason = REASONS.find((r) => r.id === row.reason_category)?.id ?? CATEGORY_TO_REASON[row.reason_category ?? ""] ?? "other";
   return { id: row.id, createdAt: row.created_at, name: input?.name ?? "", insurer: row.insurer ?? "",
     policyNo: input?.policyNo ?? "", claimNo: input?.claimNo ?? "", details: input?.details ?? "",
     amountClaimed: row.claim_amount, amountPaid: row.claim_amount - row.rejected_amount,
     reason, fileName: input?.fileName, letter: row.letter_text ?? undefined,
-    status: row.status, analysis: json?.analysis, error: json?.error };
+    status: row.status, analysis: json?.analysis, error: json?.error, ai: json?.ai };
 }
 export async function getClaim(id: string) {
   const { data, error } = await supabase.from("claims").select("*").eq("id", id).maybeSingle();

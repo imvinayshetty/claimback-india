@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ArrowLeft, ArrowRight, Check, FileText, LockKeyhole, Upload, X, LoaderCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { submitDocuments, analyzeClaim } from "@/lib/document-claims.functions";
-import { documentError, validateDocuments, type DocumentKind } from "@/lib/claim-documents";
+import { countPdfPages, documentError, pageLimitError, validateDocuments, type DocumentKind } from "@/lib/claim-documents";
 import { useAuth, SignInRequired } from "@/components/Auth";
 import { Button } from "@/components/Button";
 
@@ -32,10 +32,13 @@ function NewClaim() {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const current = steps[step] ?? steps[0];
-  function choose(selected: File[]) {
+  async function choose(selected: File[]) {
     setError("");
     for (const file of selected) {
-      const message = documentError(file, current.kind);
+      let message = documentError(file, current.kind);
+      if (!message && file.type === "application/pdf") {
+        try { message = pageLimitError(await countPdfPages(await file.arrayBuffer())); } catch (e) { message = e instanceof Error ? e.message : "This PDF could not be read."; }
+      }
       if (message) { setError(message); return; }
     }
     setFiles((previous) => ({ ...previous, [current.kind]: current.kind === "other" ? [...previous.other, ...selected] : selected.slice(0, 1) }));
@@ -70,7 +73,7 @@ function NewClaim() {
       <Upload className="text-primary" size={28} />
       <span className="font-semibold">{current.subtitle}</span>
       <span className="text-sm text-muted-foreground">{current.format} · Up to 10 MB per file</span>
-      <input aria-label={current.subtitle} type="file" className="sr-only" accept={current.accept} multiple={step === 2} onChange={(e) => { choose(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
+      <input aria-label={current.subtitle} type="file" className="sr-only" accept={current.accept} multiple={step === 2} onChange={(e) => { void choose(Array.from(e.target.files ?? [])); e.target.value = ""; }} />
     </label>
     <ul className="mt-4 space-y-2">{files[current.kind].map((file, i) => <li key={`${file.name}-${i}`} className="flex min-w-0 items-center gap-3 rounded-lg border bg-secondary p-3"><FileText className="shrink-0 text-primary" size={22} /><div className="min-w-0 flex-1"><p className="break-all text-sm font-medium">{file.name}</p><p className="text-xs text-muted-foreground">{(file.size / 1024 / 1024).toFixed(2)} MB</p></div><Button aria-label={`Remove ${file.name}`} title="Remove document" className="shrink-0 rounded-md p-2 text-muted-foreground" onClick={() => setFiles((prev) => ({ ...prev, [current.kind]: prev[current.kind].filter((_, index) => index !== i) }))}><X size={18} /></Button></li>)}</ul>
     {step === 2 && <div className="mt-6 border-t pt-6"><p className="mb-4 text-sm text-muted-foreground">{files.rejection_letter.length + files.policy.length + files.other.length} documents ready to submit</p><label className="flex cursor-pointer items-start gap-3"><input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} className="mt-1 size-5 shrink-0 accent-[var(--color-primary)]" /><span className="text-sm">I consent to my documents being used only to analyze this claim. I understand I can delete my documents at any time.</span></label></div>}
