@@ -8,7 +8,7 @@ export function loginRedirectUrl(configured?: string): string {
   } catch { return fallback; }
 }
 
-export const LOGIN_REDIRECT_URL = loginRedirectUrl(import.meta.env.VITE_LOGIN_REDIRECT_URL);
+export const LOGIN_REDIRECT_URL = loginRedirectUrl(import.meta.env['VITE_LOGIN_REDIRECT_URL']);
 
 export function loginLinkError(hash: string): string {
   const params = new URLSearchParams(hash.replace(/^#/, ""));
