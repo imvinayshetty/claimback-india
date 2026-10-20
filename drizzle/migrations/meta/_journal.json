@@ -43,6 +43,13 @@
       "when": 1792335806663,
       "tag": "0005_review_security_and_analysis_recovery",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1792482498702,
+      "tag": "0006_closed_pilot_access",
+      "breakpoints": true
     }
   ]
 }

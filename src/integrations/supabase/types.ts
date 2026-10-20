@@ -154,6 +154,24 @@ export type Database = {
         }
         Relationships: []
       }
+      pilot_testers: {
+        Row: {
+          email: string
+          invited_at: string
+          user_id: string
+        }
+        Insert: {
+          email: string
+          invited_at?: string
+          user_id: string
+        }
+        Update: {
+          email?: string
+          invited_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       submission_runs: {
         Row: {
           created_at: string
