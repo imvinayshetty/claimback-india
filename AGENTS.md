@@ -26,3 +26,4 @@
 - Synthetic evaluation scripts reuse the production analysis prompt and matcher, stop on a gateway failure and retain only synthetic reports, so review never exposes owner-private claims.
 - CI runs source-only tests and generates route types before checking TypeScript; hosted security verification remains a separate explicit command because it requires privileged environment access.
 - Results show checked physical page locations from quote verification, and label model page hints as unverified to avoid conflicting evidence locations.
+- Vercel response protections live in vercel.json with a conservative CSP that does not block current scripts or service connections; deployment must be checked before claiming the headers are active.

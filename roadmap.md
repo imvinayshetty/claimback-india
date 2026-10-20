@@ -33,11 +33,11 @@
 - [ ] Durable analysis startup: blocked on supported background worker integration; authenticated inline request and five-minute recovery remain.
 
 # New code and live-site review
-- [ ] Correct document-upload and provider-sharing copy; remove the public Admin link.
-- [ ] Display checked physical quote pages instead of raw model page labels.
-- [ ] Make the production login destination configurable while preserving the Vercel default.
-- [ ] Add automatic source checks with hosted security verification kept separate.
-- [ ] Verify the changed pages and record deployment/security findings.
+- [x] Correct document-upload and provider-sharing copy; remove the public Admin link.
+- [x] Display checked physical quote pages instead of raw model page labels; existing matcher/page-range tests pass, but a signed-in result-page check was not repeated.
+- [x] Make the production login destination configurable while preserving the Vercel default; intercepted email request verified.
+- [x] Add automatic source checks with hosted security verification kept separate; 63 source tests and one hosted security test pass locally. CI execution awaits a connected push.
+- [x] Verify public copy, footer, contact pages and login request in the browser without sending mail; latest preview build OK. Live Vercel returns HSTS but not CSP/nosniff/referrer-policy; added conservative header configuration, pending redeployment. A prematurely activated pilot restriction was removed and zero active restriction triggers confirmed; unused invitation structure marked deprecated.
 - [ ] Access restriction or final legal pages: awaiting owner decision and reviewed legal details.
-- [ ] External operations: Vercel settings/headers/runtime/cron, production email and CAPTCHA credentials, spend-budget decision, monitoring service and durable-workflow connection require owner setup.
+- [ ] External operations: redeploy and verify Vercel headers; Vercel variables/plan/runtime/cron, production email and CAPTCHA credentials, spend-budget decision, monitoring service and durable-workflow connection require owner setup. Live inbox login remains unverified.
 - [ ] Optional product changes: user-confirmed quotes, feedback consent and broader labelled evaluations require explicit approval; automatic analysis/letter expiry conflicts with the current retention requirement.
