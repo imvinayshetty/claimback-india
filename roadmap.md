@@ -31,3 +31,13 @@
 - [x] Commit 20-case synthetic probes and repeatable harness; preserve 20 live outputs (18 fully grounded, two citation-decorated strings withheld).
 - [x] Run hosted security tests without default skipping, confirm active daily cleanup, and verify signed-in submission/results/deletion/admin-denial.
 - [ ] Durable analysis startup: blocked on supported background worker integration; authenticated inline request and five-minute recovery remain.
+
+# New code and live-site review
+- [ ] Correct document-upload and provider-sharing copy; remove the public Admin link.
+- [ ] Display checked physical quote pages instead of raw model page labels.
+- [ ] Make the production login destination configurable while preserving the Vercel default.
+- [ ] Add automatic source checks with hosted security verification kept separate.
+- [ ] Verify the changed pages and record deployment/security findings.
+- [ ] Access restriction or final legal pages: awaiting owner decision and reviewed legal details.
+- [ ] External operations: Vercel settings/headers/runtime/cron, production email and CAPTCHA credentials, spend-budget decision, monitoring service and durable-workflow connection require owner setup.
+- [ ] Optional product changes: user-confirmed quotes, feedback consent and broader labelled evaluations require explicit approval; automatic analysis/letter expiry conflicts with the current retention requirement.
