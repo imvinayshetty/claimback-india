@@ -19,7 +19,7 @@ export const Route = createFileRoute("/")({
 });
 
 const steps = [
-  { icon: Upload, t: "Upload", d: "Share your rejection or settlement letter and a few details." },
+  { icon: Upload, t: "Upload", d: "Share your rejection or settlement letter and your policy PDF. Add supporting documents if needed." },
   { icon: Search, t: "Analysis", d: "We explain the reason in simple words and how strong your case looks." },
   { icon: FileText, t: "Appeal letter", d: "Get a clear, polite letter ready to send to your insurer." },
   { icon: Scale, t: "Escalation", d: "If they don't respond, know exactly when to go to the Ombudsman." },
@@ -86,7 +86,7 @@ function Index() {
         <div className="mt-8 grid gap-4 sm:grid-cols-3">
           {[
             [Lock, "Encrypted", "Your files are encrypted in transit and at rest."],
-            [ShieldCheck, "Never sold", "We never share or sell your health data."],
+            [ShieldCheck, "Never sold", "We do not sell your health data. Our storage and AI providers process it to review your claim."],
             [Trash2, "Delete anytime", "Remove your claim and files whenever you want."],
           ].map(([I, t, d]: any) => (
             <div key={t} className="p-2">

@@ -10,7 +10,7 @@
 <!-- LOVABLE:END -->
 
 - Claims use authenticated server mutations with validated-session ownership and RLS-scoped reads; this prevents submitted owner IDs from affecting access.
-- Email login uses the shared production destination, not the preview origin; hosted redirect allowlisting must match it so email links cannot fall back to preview.
+- Email login uses a validated HTTPS deployment-configurable shared destination with the production fallback, not the preview origin; hosted redirect allowlisting must match it so email links cannot fall back to preview.
 - Store ancillary claim form fields in analysis_json.input to preserve the requested table schema.
 - Keep admin membership checks server-side and restricted to /admin; membership does not bypass owner-only access.
 - Document paths use user UUID/claim UUID/file to align private Storage policies with claim ownership.
@@ -24,3 +24,6 @@
 - Submission quotas are database-atomic and retained separately from deletable claims; failed letter-generation reservations are refunded atomically.
 - Retention uses analysis completion or upload time when analysis never completes, including failed claims; keep the managed daily cleanup schedule.
 - Synthetic evaluation scripts reuse the production analysis prompt and matcher, stop on a gateway failure and retain only synthetic reports, so review never exposes owner-private claims.
+- CI runs source-only tests and generates route types before checking TypeScript; hosted security verification remains a separate explicit command because it requires privileged environment access.
+- Results show checked physical page locations from quote verification, and label model page hints as unverified to avoid conflicting evidence locations.
+- Vercel response protections live in vercel.json with a conservative CSP that does not block current scripts or service connections; deployment must be checked before claiming the headers are active.

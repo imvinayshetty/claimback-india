@@ -16,6 +16,7 @@ export const Route = createFileRoute("/claim/$id")({
   head: () => ({ meta: [
     { title: "Your claim analysis — ClaimBack" },
     { name: "description", content: "Plain-language analysis of your insurance claim decision." },
+    { name: "robots", content: "noindex, noarchive" },
     { property: "og:type", content: "website" },
     { name: "twitter:card", content: "summary_large_image" },
     { property: "og:title", content: "Your claim analysis — ClaimBack" },
@@ -120,7 +121,7 @@ function Result() {
       <Card icon={<FileSearch size={20} />} title="Policy clauses">
         {ai && ai.clauses_cited.length > 0 ? <ul className="space-y-4">{ai.clauses_cited.map((cl, i) => <li key={i} className="rounded-xl bg-secondary p-4">
           <blockquote className="border-l-4 border-primary pl-3 italic">“{cl.quote}”</blockquote>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><span className="text-muted-foreground">Page {cl.page || "not found"}</span><QuoteBadge match={c.verification?.clauses[i]} /></div>
+          <div className="mt-3 flex flex-wrap items-center gap-2 text-sm"><QuoteBadge match={c.verification?.clauses[i]} />{c.verification?.clauses[i]?.status !== "verified" && <span className="text-muted-foreground">AI page hint (unverified): {cl.page || "not found"}</span>}</div>
         </li>)}</ul> : <p className="text-muted-foreground">No policy clauses were found in your documents.</p>}
       </Card>
 

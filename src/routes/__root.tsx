@@ -100,7 +100,6 @@ function AppLayout() {
           <div className="flex gap-5">
             <Link to="/privacy">Privacy</Link>
             <Link to="/terms">Terms</Link>
-            <Link to="/admin">Admin</Link>
           </div>
         </div>
       </footer>

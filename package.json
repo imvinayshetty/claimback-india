@@ -11,6 +11,8 @@
     "lint": "eslint .",
     "format": "prettier --write .",
     "test": "vitest run",
+    "test:source": "vitest run --exclude src/test/security.integration.test.ts",
+    "test:hosted": "vitest run src/test/security.integration.test.ts",
     "test:watch": "vitest"
   },
   "overrides": {
